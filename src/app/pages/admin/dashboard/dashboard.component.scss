@@ -1,0 +1,41 @@
+thead th.sortable {
+    cursor: pointer;
+    transition: color 0.2s ease-in-out;
+
+    &:hover {
+        color: var(--primary-blue);
+    }
+}
+
+// Estilos para os novos cards de resumo
+.summary-card {
+    border: none;
+    border-radius: .35rem;
+    box-shadow: 0 .15rem 1.75rem 0 rgba(13, 13, 13, 0.15)!important;
+
+    &.border-left-primary { border-left: .25rem solid var(--primary-blue) !important; }
+    &.border-left-success { border-left: .25rem solid var(--success) !important; }
+    &.border-left-info { border-left: .25rem solid #17a2b8 !important; }
+    &.border-left-warning { border-left: .25rem solid #f6c23e !important; }
+
+    .card-body {
+        padding: 1.25rem;
+        .text-xs { font-size: .7rem; }
+        .text-gray-300 { color: #5a5c69 !important; }
+    }
+}
+
+// Garante que o gráfico seja responsivo
+.chart-container {
+    position: relative;
+    height: 40vh;
+    width: 100%;
+}
+
+// Adapta ngx-charts para o tema escuro
+:host ::ng-deep {
+    .ngx-charts {
+        text { fill: var(--text-secondary) !important; }
+        .grid-panel line { stroke: var(--border-color) !important; }
+    }
+}

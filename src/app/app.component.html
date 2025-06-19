@@ -1,0 +1,8 @@
+<app-toast-notification
+    *ngIf="notification$ | async as notification"
+    [message]="notification.message"
+    [type]="notification.type"
+    (close)="onCloseNotification()">
+</app-toast-notification>
+
+<router-outlet></router-outlet>

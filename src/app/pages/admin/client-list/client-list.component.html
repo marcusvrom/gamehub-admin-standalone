@@ -1,0 +1,185 @@
+<div
+  class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2"
+>
+  <h1 class="mb-0">Lista de Clientes</h1>
+  <div class="d-flex align-items-center gap-2">
+    <div class="input-group">
+      <span class="input-group-text bg-dark border-secondary"
+        ><i class="bi bi-search"></i
+      ></span>
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Pesquisar por nome, CPF..."
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="onSearch()"
+      />
+    </div>
+    <button
+      class="btn btn-outline-primary"
+      (click)="loadClients()"
+      title="Recarregar Lista"
+    >
+      <i class="bi bi-arrow-clockwise"></i>
+    </button>
+    <a
+      routerLink="/admin/clients/new"
+      class="btn btn-primary d-flex align-items-center"
+    >
+      <i class="bi bi-plus-lg me-2"></i>Novo Cliente
+    </a>
+  </div>
+</div>
+
+<table class="table table-hover align-middle">
+  <thead>
+    <tr>
+      <th (click)="onSort('name')" class="sortable">
+        Nome
+        <i
+          class="bi"
+          [ngClass]="{
+            'bi-arrow-down': sortColumn === 'name' && sortDirection === 'desc',
+            'bi-arrow-up': sortColumn === 'name' && sortDirection === 'asc'
+          }"
+        ></i>
+      </th>
+      <th (click)="onSort('cpf')" class="sortable">
+        CPF
+        <i
+          class="bi"
+          [ngClass]="{
+            'bi-arrow-down': sortColumn === 'cpf' && sortDirection === 'desc',
+            'bi-arrow-up': sortColumn === 'cpf' && sortDirection === 'asc'
+          }"
+        ></i>
+      </th>
+      <th (click)="onSort('client_type')" class="sortable">
+        Tipo
+        <i
+          class="bi"
+          [ngClass]="{
+            'bi-arrow-down':
+              sortColumn === 'client_type' && sortDirection === 'desc',
+            'bi-arrow-up':
+              sortColumn === 'client_type' && sortDirection === 'asc'
+          }"
+        ></i>
+      </th>
+      <th>Assinatura</th>
+      <th>Próxima Cobrança</th>
+      <th (click)="onSort('hours_balance')" class="sortable">
+        Saldo
+        <i
+          class="bi"
+          [ngClass]="{
+            'bi-arrow-down':
+              sortColumn === 'hours_balance' && sortDirection === 'desc',
+            'bi-arrow-up':
+              sortColumn === 'hours_balance' && sortDirection === 'asc'
+          }"
+        ></i>
+      </th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody>
+    <ng-container *ngIf="isLoading">
+      <tr *ngFor="let i of [1, 2, 3, 4, 5]">
+        <td>
+          <app-shimmer-loader height="24px" width="80%"></app-shimmer-loader>
+        </td>
+        <td>
+          <app-shimmer-loader height="24px" width="70%"></app-shimmer-loader>
+        </td>
+        <td>
+          <app-shimmer-loader height="24px" width="60%"></app-shimmer-loader>
+        </td>
+        <td>
+          <app-shimmer-loader height="24px" width="50%"></app-shimmer-loader>
+        </td>
+        <td>
+          <app-shimmer-loader height="24px" width="60%"></app-shimmer-loader>
+        </td>
+        <td>
+          <app-shimmer-loader height="24px" width="50%"></app-shimmer-loader>
+        </td>
+        <td>
+          <div class="d-flex gap-2">
+            <app-shimmer-loader height="31px" width="38px"></app-shimmer-loader>
+            <app-shimmer-loader height="31px" width="38px"></app-shimmer-loader>
+          </div>
+        </td>
+      </tr>
+    </ng-container>
+    <ng-container *ngIf="!isLoading">
+      <tr *ngFor="let client of filteredClients">
+        <td>
+          <a
+            [routerLink]="['/admin/clients', client.id]"
+            class="text-white text-decoration-none"
+            title="Ver Detalhes"
+          >
+            {{ client.name }}
+          </a>
+        </td>
+        <td>{{ client.cpf | cpf }}</td>
+        <td>
+          <span
+            class="badge"
+            [ngClass]="
+              client.client_type === 'CLUBE'
+                ? 'bg-info text-dark'
+                : 'bg-secondary'
+            "
+            >{{ client.client_type }}</span
+          >
+        </td>
+        <td>
+          <span
+            *ngIf="client.client_type === 'CLUBE'"
+            class="badge"
+            [ngClass]="
+              client.subscription_status === 'PAGA'
+                ? 'bg-success'
+                : 'bg-warning text-dark'
+            "
+            >{{ client.subscription_status }}</span
+          >
+          <span *ngIf="client.client_type !== 'CLUBE'" class="text-muted"
+            >N/A</span
+          >
+        </td>
+        <td>
+          <span *ngIf="client.client_type === 'CLUBE'">{{
+            client.next_billing_date | date : "dd/MM/yy"
+          }}</span>
+          <span *ngIf="client.client_type !== 'CLUBE'" class="text-muted"
+            >N/A</span
+          >
+        </td>
+        <td>{{ client.hours_balance | hoursMinutes }}</td>
+        <td class="d-flex gap-2">
+          <a
+            [routerLink]="['/admin/clients/edit', client.id]"
+            class="btn btn-sm btn-secondary"
+            title="Editar"
+            ><i class="bi bi-pencil-square"></i
+          ></a>
+          <button
+            class="btn btn-sm btn-danger"
+            (click)="deleteClient(client.id, client.name)"
+            title="Excluir"
+          >
+            <i class="bi bi-trash3-fill"></i>
+          </button>
+        </td>
+      </tr>
+      <tr *ngIf="filteredClients.length === 0">
+        <td colspan="7" class="text-center text-muted p-4">
+          Nenhum cliente encontrado.
+        </td>
+      </tr>
+    </ng-container>
+  </tbody>
+</table>

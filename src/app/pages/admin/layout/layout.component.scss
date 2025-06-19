@@ -1,0 +1,92 @@
+// Variáveis de animação
+$sidebar-width-expanded: 250px;
+$sidebar-width-collapsed: 80px;
+$transition-speed: 0.3s;
+
+// Container principal que controla o layout
+.layout-container {
+    display: flex;
+}
+
+// Estilos da Sidebar
+.sidebar {
+    width: $sidebar-width-expanded;
+    background-color: var(--dark-bg);
+    transition: width $transition-speed ease-in-out;
+    overflow-x: hidden; // Impede que o conteúdo vaze durante a animação
+
+    .logo-container {
+        transition: all $transition-speed ease;
+    }
+
+    .nav-link {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem; // Espaço entre o ícone e o texto
+        font-size: 1rem;
+        color: var(--text-secondary);
+
+        i {
+            font-size: 1.2rem;
+            min-width: 24px; // Garante alinhamento dos ícones
+            text-align: center;
+        }
+
+        &:hover {
+            color: var(--text-light);
+            background-color: var(--light-dark-bg);
+        }
+        &.active {
+            color: var(--white);
+            background-color: var(--primary-blue);
+        }
+    }
+
+    hr {
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+}
+
+// Estilos do Conteúdo Principal
+.main-content {
+    width: 100%;
+    overflow-y: auto;
+    height: 100vh;
+    // margin-left: $sidebar-width-expanded;
+    transition: margin-left $transition-speed ease-in-out;
+}
+
+// ESTADOS QUANDO O MENU ESTIVER RECOLHIDO
+.sidebar-collapsed {
+    .sidebar {
+        width: $sidebar-width-collapsed;
+        align-items: center; // Centraliza os ícones
+
+        .logo-container {
+            .brand-name {
+                display: none; // Esconde o texto "Admin"
+            }
+        }
+
+        .nav-link {
+            justify-content: center;
+            span {
+                display: none; // Esconde o texto dos links
+            }
+        }
+
+        hr {
+            width: 60%;
+        }
+
+        .sidebar-toggle-wrapper {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+    }
+
+    .main-content {
+        margin-left: 12px;
+    }
+}

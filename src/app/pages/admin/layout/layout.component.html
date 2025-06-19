@@ -1,0 +1,62 @@
+<div class="layout-container" [ngClass]="{ 'sidebar-collapsed': isSidebarCollapsed }">
+
+  <div class="sidebar d-flex flex-column flex-shrink-0 p-3 text-white">
+    <a routerLink="/admin" class="logo-container d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+      <img src="https://vemprogamehub.com/painel/app/pages/admin/layout/assets/logo-game-hub.png" alt="Game Hub Logo" height="40" class="logo-img">
+      <span class="brand-name fs-5 font-pixel">Admin</span>
+    </a>
+    <hr>
+    <ul class="nav nav-pills flex-column mb-auto">
+      <li class="nav-item">
+        <a routerLink="/admin/dashboard" routerLinkActive="active" class="nav-link">
+          <i class="bi bi-speedometer2"></i>
+          <span>Dashboard</span>
+        </a>
+      </li>
+      <li>
+        <a routerLink="/admin/clients" routerLinkActive="active" class="nav-link">
+          <i class="bi bi-people-fill"></i>
+          <span>Clientes</span>
+        </a>
+      </li>
+      <li>
+        <!-- <a routerLink="/admin/scheduling" routerLinkActive="active" class="nav-link">
+          <i class="bi bi-calendar-week-fill"></i>
+          <span>Agendamentos</span>
+        </a> -->
+        <a routerLink="/admin/scheduling" routerLinkActive="active" class="nav-link disabled">
+          <i class="bi bi-calendar-week-fill"></i>
+          <span>Agendamentos</span>
+        </a>
+      </li>
+      <li>
+        <a routerLink="/admin/stations" routerLinkActive="active" class="nav-link">
+          <i class="bi bi-controller"></i>
+          <span>Estações</span>
+        </a>
+      </li>
+      <li>
+        <a routerLink="/admin/packages" routerLinkActive="active" class="nav-link">
+          <i class="bi bi-box-seam-fill"></i>
+          <span>Pacotes</span>
+        </a>
+      </li>
+      <li>
+        <a routerLink="/admin/settings" routerLinkActive="active" class="nav-link">
+          <i class="bi bi-gear-fill"></i>
+          <span>Configurações</span>
+        </a>
+      </li>
+    </ul>
+    <hr>
+    <div class="sidebar-toggle-wrapper">
+        <button class="btn btn-outline-secondary w-100" (click)="toggleSidebar()">
+            <i class="bi" [ngClass]="isSidebarCollapsed ? 'bi-chevron-double-right' : 'bi-chevron-double-left'"></i>
+        </button>
+    </div>
+  </div>
+
+  <main class="main-content p-4">
+    <router-outlet></router-outlet>
+  </main>
+</div>

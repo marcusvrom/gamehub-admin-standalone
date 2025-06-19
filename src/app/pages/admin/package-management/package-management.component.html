@@ -1,0 +1,77 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1 class="mb-0">Gerenciamento de Pacotes</h1>
+  <button class="btn btn-primary d-flex align-items-center" (click)="openModal()">
+    <i class="bi bi-plus-lg me-2"></i>Novo Pacote
+  </button>
+</div>
+
+<div class="card">
+  <div class="card-body">
+    <table class="table table-hover align-middle">
+      <thead>
+        <tr>
+          <th>Nome do Pacote</th>
+          <th>Horas</th>
+          <th>Preço Total</th>
+          <th>Preço por Hora</th>
+          <th>Status</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let pkg of packages">
+          <td>
+            <strong>{{ pkg.name }}</strong>
+            <p class="text-muted small mb-0 opacity-25" style="color: #fff !important;">{{ pkg.description }}</p>
+          </td>
+          <td>{{ pkg.hours_included }}h</td>
+          <td>{{ pkg.price | currency:'BRL' }}</td>
+          <td>
+            <strong>{{ calculatePricePerHour(pkg) | currency:'BRL' }}</strong>
+            <div class="small text-success">
+              Economia de {{ settings.hourly_rate_regular - calculatePricePerHour(pkg) | currency:'BRL' }} vs. Avulso
+            </div>
+          </td>
+          <td>
+            <span class="badge" [ngClass]="pkg.is_active ? 'bg-success' : 'bg-secondary'">
+              {{ pkg.is_active ? 'Ativo' : 'Inativo' }}
+            </span>
+          </td>
+          <td>
+            <button class="btn btn-sm btn-secondary me-2" (click)="openModal(pkg)" title="Editar">
+              <i class="bi bi-pencil-square"></i>
+            </button>
+            <button class="btn btn-sm btn-danger" (click)="onDeletePackage(pkg)" title="Excluir">
+              <i class="bi bi-trash3-fill"></i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div *ngIf="showModal" class="modal-backdrop" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <button class="modal-close-btn" (click)="closeModal()" title="Fechar">
+      <i class="bi bi-x-lg"></i>
+    </button>
+    <h4 class="mb-4">{{ isEditMode ? 'Editar Pacote' : 'Novo Pacote' }}</h4>
+    <form [formGroup]="packageForm">
+      <div class="mb-3"><label class="form-label">Nome do Pacote</label><input type="text" formControlName="name" class="form-control"></div>
+      <div class="mb-3"><label class="form-label">Descrição</label><textarea formControlName="description" class="form-control"></textarea></div>
+      <div class="row">
+        <div class="col-6 mb-3"><label class="form-label">Horas Inclusas</label><input type="number" formControlName="hours_included" class="form-control"></div>
+        <div class="col-6 mb-3"><label class="form-label">Preço (R$)</label><input type="number" formControlName="price" class="form-control"></div>
+      </div>
+      <div class="form-check form-switch mb-3">
+        <input class="form-check-input" type="checkbox" role="switch" id="package-active" formControlName="is_active">
+        <label class="form-check-label" for="package-active">Pacote Ativo</label>
+      </div>
+    </form>
+    <div class="d-flex justify-content-end mt-4">
+      <button type="button" class="btn btn-secondary me-2" (click)="closeModal()">Cancelar</button>
+      <button type="submit" class="btn btn-primary" (click)="onSavePackage()" [disabled]="packageForm.invalid">Salvar Pacote</button>
+    </div>
+  </div>
+</div>

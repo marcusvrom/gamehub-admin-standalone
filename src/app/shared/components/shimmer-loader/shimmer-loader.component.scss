@@ -1,0 +1,19 @@
+@keyframes placeholder-shimmer {
+    0% {
+        background-position: -800px 0;
+    }
+    100% {
+        background-position: 800px 0;
+    }
+}
+
+.shimmer {
+    // A animação que faz o efeito de "brilho" passar
+    animation: placeholder-shimmer 1.5s linear infinite;
+
+    // O gradiente que cria o "brilho"
+    background: linear-gradient(to right, #2c2c2c 8%, #444444 18%, #2c2c2c 33%);
+    background-size: 800px 104px; // Tamanho do gradiente
+
+    position: relative;
+}

@@ -1,0 +1,15 @@
+<div class="toast-container" [ngClass]="type">
+  <div class="toast-icon">
+    <i class="bi" [ngClass]="{
+      'bi-check-circle-fill': type === 'success',
+      'bi-exclamation-triangle-fill': type === 'warning',
+      'bi-x-circle-fill': type === 'error'
+    }"></i>
+  </div>
+  <div class="toast-message">
+    {{ message }}
+  </div>
+  <button class="toast-close-btn" (click)="close.emit()" title="Fechar">
+    <i class="bi bi-x"></i>
+  </button>
+</div>

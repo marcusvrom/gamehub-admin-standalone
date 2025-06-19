@@ -1,0 +1,76 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1 class="mb-0">Gerenciamento de Estações</h1>
+  <button class="btn btn-primary d-flex align-items-center" (click)="openModal()">
+    <i class="bi bi-plus-lg me-2"></i>Nova Estação
+  </button>
+</div>
+
+<div class="card">
+  <div class="card-body">
+    <table class="table table-hover align-middle">
+      <thead>
+        <tr>
+          <th>Nome da Estação</th>
+          <th>Tipo</th>
+          <th>Status</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let station of stations">
+          <td><strong>{{ station.name }}</strong></td>
+          <td>{{ station.type }}</td>
+          <td>
+            <span class="badge" [ngClass]="{
+              'bg-success': station.status === 'AVAILABLE',
+              'bg-danger': station.status === 'IN_USE',
+              'bg-warning text-dark': station.status === 'MAINTENANCE'
+            }">
+              {{ station.status }}
+            </span>
+          </td>
+          <td>
+            <button class="btn btn-sm btn-secondary me-2" (click)="openModal(station)" title="Editar">
+              <i class="bi bi-pencil-square"></i>
+            </button>
+            <button class="btn btn-sm btn-danger" (click)="onDeleteStation(station)" title="Excluir">
+              <i class="bi bi-trash3-fill"></i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div *ngIf="showModal" class="modal-backdrop" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <button class="modal-close-btn" (click)="closeModal()" title="Fechar"><i class="bi bi-x-lg"></i></button>
+    <h4 class="mb-4">{{ isEditMode ? 'Editar Estação' : 'Nova Estação' }}</h4>
+    <form [formGroup]="stationForm" (ngSubmit)="onSaveStation()">
+      <div class="mb-3">
+        <label class="form-label">Nome da Estação (Ex: PlayStation 5 - Sala 1)</label>
+        <input type="text" formControlName="name" class="form-control">
+      </div>
+      <div class="row">
+        <div class="col-6 mb-3">
+          <label class="form-label">Tipo de Console</label>
+          <select formControlName="type" class="form-select">
+            <option value="" disabled>Selecione...</option>
+            <option *ngFor="let type of stationTypes" [value]="type">{{ type }}</option>
+          </select>
+        </div>
+        <div class="col-6 mb-3">
+          <label class="form-label">Status</label>
+          <select formControlName="status" class="form-select">
+            <option *ngFor="let status of stationStatuses" [value]="status">{{ status }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="d-flex justify-content-end mt-4">
+        <button type="button" class="btn btn-secondary me-2" (click)="closeModal()">Cancelar</button>
+        <button type="submit" class="btn btn-primary" [disabled]="stationForm.invalid">Salvar</button>
+      </div>
+    </form>
+  </div>
+</div>

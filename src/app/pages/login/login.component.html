@@ -1,0 +1,24 @@
+<div class="login-container vh-100 d-flex justify-content-center align-items-center">
+  <div class="card p-4 shadow-sm" style="width: 400px;">
+    <div class="card-body d-flex flex-column align-items-center">
+      <img src="https://vemprogamehub.com/painel/app/pages/admin/layout/assets/logo-game-hub.png" alt="Game Hub Logo" height="150" class="logo-img">
+      <h3 class="card-title text-center mb-4">Painel Game Hub</h3>
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <div class="mb-3">
+          <label for="username" class="form-label">Usuário</label>
+          <input type="text" id="username" formControlName="username" class="form-control" placeholder="admin">
+        </div>
+        <div class="mb-3">
+          <label for="password" class="form-label">Senha</label>
+          <input type="password" id="password" formControlName="password" class="form-control" placeholder="admin">
+        </div>
+        <div *ngIf="errorMessage" class="alert alert-danger mt-3 py-2">
+          {{ errorMessage }}
+        </div>
+        <div class="d-grid mt-4">
+          <button type="submit" class="btn btn-primary" [disabled]="loginForm.invalid">Entrar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

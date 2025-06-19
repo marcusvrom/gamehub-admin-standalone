@@ -1,0 +1,223 @@
+<div *ngIf="client">
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <h1 class="mb-0">{{ client.name }}</h1>
+    <div class="d-flex flex-wrap gap-2">
+      <button class="btn btn-success d-flex align-items-center" (click)="openCheckInModal()" [disabled]="client.hours_balance <= 0">
+        <i class="bi bi-joystick me-2"></i>Iniciar Sessão (Check-in)
+      </button>
+
+      <button *ngIf="client.client_type === 'AVULSO'" class="btn btn-primary d-flex align-items-center" (click)="showUpgradeModal = true"><i class="bi bi-star-fill me-2"></i>Tornar Membro</button>
+      <button *ngIf="client.client_type === 'CLUBE' && client.subscription_status === 'PENDENTE'" class="btn btn-warning d-flex align-items-center" (click)="showRenewModal = true"><i class="bi bi-arrow-repeat me-2"></i>Renovar Assinatura</button>
+      <button class="btn btn-primary d-flex align-items-center" (click)="showBuyPackageModal = true"><i class="bi bi-box-seam-fill me-2"></i>Comprar Pacote</button>
+      <button class="btn btn-info d-flex align-items-center" (click)="showAddHoursModal = true"><i class="bi bi-clock-history me-2"></i>Adicionar Horas</button>
+      <a [routerLink]="['/admin/clients/edit', client.id]" class="btn btn-secondary d-flex align-items-center"><i class="bi bi-pencil-square me-2"></i>Editar Cadastro</a>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-4">
+      <div class="card mb-4">
+        <div class="card-header d-flex align-items-center"><i class="bi bi-person-vcard me-2"></i>Detalhes do Cliente</div>
+        <div class="card-body">
+          <p><strong>CPF:</strong> {{ client.cpf | cpf }}</p>
+          <p><strong>Email:</strong> {{ client.email || 'Não informado' }}</p>
+          <p><strong>Telefone:</strong> {{ client.phone || 'Não informado' }}</p>
+          <p><strong>Saldo Atual:</strong> <span class="badge bg-primary fs-6">{{ client.hours_balance | hoursMinutes }}</span></p>
+          <p class="mb-0"><strong>Tipo:</strong> {{ client.client_type }}</p>
+        </div>
+      </div>
+      <div class="card mb-4" *ngIf="client.client_type === 'CLUBE'">
+        <div class="card-header d-flex align-items-center"><i class="bi bi-calendar-check me-2"></i>Detalhes da Assinatura</div>
+        <div class="card-body">
+          <p><strong>Status: </strong><span class="badge" [ngClass]="client.subscription_status === 'PAGA' ? 'bg-success' : 'bg-warning text-dark'">{{ client.subscription_status }}</span></p>
+          <p><strong>Membro desde:</strong> {{ client.subscription_date | date:'dd/MM/yyyy' }}</p>
+          <p class="mb-0"><strong>Próxima Cobrança:</strong> {{ client.next_billing_date | date:'dd/MM/yyyy' }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-8">
+      <div class="card mb-4">
+        <div class="card-header d-flex align-items-center"><i class="bi bi-controller me-2"></i>Histórico de Sessões</div>
+        <div class="card-body" style="max-height: 250px; overflow-y: auto;">
+          <table class="table table-sm table-hover">
+            <thead>
+              <tr>
+                <th (click)="onSortSessionHistory('entry_time')" class="sortable">Entrada <i class="bi" [ngClass]="{'bi-arrow-down': sessionHistorySort.column === 'entry_time' && sessionHistorySort.direction === 'desc', 'bi-arrow-up': sessionHistorySort.column === 'entry_time' && sessionHistorySort.direction === 'asc'}"></i></th>
+                <th (click)="onSortSessionHistory('exit_time')" class="sortable">Saída <i class="bi" [ngClass]="{'bi-arrow-down': sessionHistorySort.column === 'exit_time' && sessionHistorySort.direction === 'desc', 'bi-arrow-up': sessionHistorySort.column === 'exit_time' && sessionHistorySort.direction === 'asc'}"></i></th>
+                <th (click)="onSortSessionHistory('duration_minutes')" class="sortable">Duração (min) <i class="bi" [ngClass]="{'bi-arrow-down': sessionHistorySort.column === 'duration_minutes' && sessionHistorySort.direction === 'desc', 'bi-arrow-up': sessionHistorySort.column === 'duration_minutes' && sessionHistorySort.direction === 'asc'}"></i></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let session of sessionHistory"><td>{{ session.entry_time | date:'dd/MM/yy HH:mm' }}</td><td>{{ session.exit_time ? (session.exit_time | date:'dd/MM/yy HH:mm') : 'Em andamento' }}</td><td>{{ session.duration_minutes }}</td></tr>
+              <tr *ngIf="sessionHistory.length === 0"><td colspan="3" class="text-center text-muted">Nenhum histórico de sessão.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header d-flex align-items-center"><i class="bi bi-cash-coin me-2"></i>Histórico de Transações</div>
+        <div class="card-body" style="max-height: 250px; overflow-y: auto;">
+          <table class="table table-sm table-hover">
+            <thead>
+              <tr>
+                <th (click)="onSortTransactionHistory('transaction_date')" class="sortable">Data <i class="bi" [ngClass]="{'bi-arrow-down': transactionHistorySort.column === 'transaction_date' && transactionHistorySort.direction === 'desc', 'bi-arrow-up': transactionHistorySort.column === 'transaction_date' && transactionHistorySort.direction === 'asc'}"></i></th>
+                <th (click)="onSortTransactionHistory('transaction_type')" class="sortable">Tipo <i class="bi" [ngClass]="{'bi-arrow-down': transactionHistorySort.column === 'transaction_type' && transactionHistorySort.direction === 'desc', 'bi-arrow-up': transactionHistorySort.column === 'transaction_type' && transactionHistorySort.direction === 'asc'}"></i></th>
+                <th (click)="onSortTransactionHistory('hours_added')" class="sortable">Horas <i class="bi" [ngClass]="{'bi-arrow-down': transactionHistorySort.column === 'hours_added' && transactionHistorySort.direction === 'desc', 'bi-arrow-up': transactionHistorySort.column === 'hours_added' && transactionHistorySort.direction === 'asc'}"></i></th>
+                <th (click)="onSortTransactionHistory('amount_paid')" class="sortable">Valor Pago <i class="bi" [ngClass]="{'bi-arrow-down': transactionHistorySort.column === 'amount_paid' && transactionHistorySort.direction === 'desc', 'bi-arrow-up': transactionHistorySort.column === 'amount_paid' && transactionHistorySort.direction === 'asc'}"></i></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let tx of transactionHistory"><td>{{ tx.transaction_date | date:'dd/MM/yy HH:mm' }}</td><td><span class="badge bg-primary">{{ tx.transaction_type }}</span></td><td>+{{ tx.hours_added | number:'1.2-2' }}</td><td>{{ tx.amount_paid | currency:'BRL' }}</td></tr>
+              <tr *ngIf="transactionHistory.length === 0"><td colspan="4" class="text-center text-muted">Nenhuma transação encontrada.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="showCheckInModal" class="modal-backdrop">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <button class="modal-close-btn" (click)="showCheckInModal = false" title="Fechar">
+      <i class="bi bi-x-lg"></i>
+    </button>
+    <h4 class="mb-4">Selecionar Estação para {{ client.name }}</h4>
+
+    <div *ngIf="availableStations.length === 0" class="alert bg-dark">
+      Nenhuma estação disponível no momento.
+    </div>
+
+    <div *ngIf="availableStations.length > 0" class="list-group bg-dark">
+      <button *ngFor="let station of availableStations"
+              type="button"
+              class="list-group-item list-group-item-action d-flex justify-content-between align-items-center bg-dark"
+              (click)="confirmCheckIn(station.id)">
+        <div>
+          <strong class="mb-1">{{ station.name }}</strong>
+          <small class="d-block text-muted">{{ station.type }}</small>
+        </div>
+        <i class="bi bi-play-circle-fill fs-4 text-success"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="!client" class="text-center">Carregando dados do cliente...</div>
+
+
+<div *ngIf="showAddHoursModal" class="modal-backdrop" (click)="closeAddHoursModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <button class="modal-close-btn" (click)="closeAddHoursModal()" title="Fechar">
+      <i class="bi bi-x-lg"></i>
+    </button>
+    <h4 class="mb-4">Adicionar Horas para {{ client.name }}</h4>
+    <form [formGroup]="addHoursForm" (ngSubmit)="confirmAddHours()">
+      <div class="mb-3">
+        <label for="hours-to-add" class="form-label">Quantidade de Horas</label>
+        <input type="number" id="hours-to-add" class="form-control" formControlName="hours_to_add" (input)="calculateCost()">
+      </div>
+    </form>
+    <div *ngIf="calculatedCost !== null" class="alert bg-dark">
+      Valor Total: <strong>{{ calculatedCost | currency:'BRL' }}</strong>
+    </div>
+    <div class="d-flex justify-content-end mt-4">
+      <button type="button" class="btn btn-secondary me-2" (click)="closeAddHoursModal()">Cancelar</button>
+      <button type="submit" class="btn btn-success" (click)="confirmAddHours()" [disabled]="calculatedCost === null">Confirmar Compra</button>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="showUpgradeModal" class="modal-backdrop">
+  <div class="modal-content">
+    <button class="modal-close-btn" (click)="showUpgradeModal = false" title="Fechar">
+      <i class="bi bi-x-lg"></i>
+    </button>
+    <h4 class="mb-4">Tornar {{ client.name }} Membro do Clube</h4>
+    <p>Ao confirmar, o status do cliente será alterado para CLUBE. Defina a data da próxima cobrança.</p>
+    <form [formGroup]="upgradeForm" (ngSubmit)="onUpgradeToClub()">
+      <div class="mb-3">
+        <label for="next-billing-date" class="form-label">Próxima Data de Cobrança</label>
+        <input type="date" id="next-billing-date" class="form-control" formControlName="next_billing_date">
+      </div>
+    </form>
+    <div class="d-flex justify-content-end mt-4">
+      <button type="button" class="btn btn-secondary me-2" (click)="showUpgradeModal = false">Cancelar</button>
+      <button type="submit" class="btn btn-success" (click)="onUpgradeToClub()" [disabled]="upgradeForm.invalid">Confirmar Assinatura</button>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="showRenewModal" class="modal-backdrop">
+  <div class="modal-content">
+    <button class="modal-close-btn" (click)="closeAddHoursModal()" title="Fechar">
+      <i class="bi bi-x-lg"></i>
+    </button>
+    <h4 class="mb-4">Renovar Assinatura de {{ client.name }}</h4>
+    <p>Confirme o pagamento e defina a data da PRÓXIMA cobrança (geralmente daqui a um mês).</p>
+    <form [formGroup]="renewForm" (ngSubmit)="onRenewSubscription()">
+      <div class="mb-3">
+        <label for="new-next-billing-date" class="form-label">Nova Data da Próxima Cobrança</label>
+        <input type="date" id="new-next-billing-date" class="form-control" formControlName="new_next_billing_date">
+      </div>
+    </form>
+    <div class="d-flex justify-content-end mt-4">
+      <button type="button" class="btn btn-secondary me-2" (click)="showRenewModal = false">Cancelar</button>
+      <button type="submit" class="btn btn-success" (click)="onRenewSubscription()" [disabled]="renewForm.invalid">Confirmar Pagamento</button>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="showBuyPackageModal" class="modal-backdrop">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <button class="modal-close-btn" (click)="showBuyPackageModal = false" title="Fechar">
+      <i class="bi bi-x-lg"></i>
+    </button>
+    <h4 class="mb-4">Comprar Pacote para {{ client.name }}</h4>
+    <form [formGroup]="buyPackageForm">
+      <div class="list-group">
+        <label *ngFor="let pkg of packages" class="list-group-item bg-dark list-group-item-action">
+          <input class="form-check-input me-3" type="radio" formControlName="package_id" [value]="pkg.id">
+          <div>
+            <strong>{{ pkg.name }}</strong> ({{ pkg.hours_included }} horas)
+            <span class="float-end badge bg-primary rounded-pill">{{ pkg.price | currency:'BRL' }}</span>
+            <div class="form-text mt-1 text-success">
+              Valor por hora: {{ (pkg.price / pkg.hours_included) | currency:'BRL' }}
+            </div>
+          </div>
+        </label>
+      </div>
+    </form>
+
+    <div class="d-flex justify-content-end mt-4">
+      <button type="button" class="btn btn-secondary me-2" (click)="showBuyPackageModal = false">Cancelar</button>
+      <button type="submit" class="btn btn-success" (click)="onBuyPackage()" [disabled]="buyPackageForm.invalid">Confirmar Compra</button>
+    </div>
+    </div>
+</div>
+
+<div *ngIf="showCheckInModal" class="modal-backdrop">
+  <div class="modal-content">
+    <button class="modal-close-btn" (click)="showCheckInModal = false" title="Fechar">
+      <i class="bi bi-x-lg"></i>
+    </button>
+    <h4 class="mb-4">Selecionar Estação para {{ client.name }}</h4>
+
+    <div *ngIf="availableStations.length === 0" class="alert alert-warning">
+      Nenhuma estação disponível no momento.
+    </div>
+
+    <div *ngIf="availableStations.length > 0" class="list-group bg-dark">
+      <button *ngFor="let station of availableStations"
+              type="button"
+              class="list-group-item list-group-item-action d-flex justify-content-between align-items-center bg-dark"
+              (click)="confirmCheckIn(station.id)">
+        <div>
+          <strong class="mb-1">{{ station.name }}</strong>
+          <small class="d-block text-muted">{{ station.type }}</small>
+        </div>
+        <i class="bi bi-play-circle-fill fs-4 text-success"></i>
+      </button>
+    </div>
+  </div>
+</div>

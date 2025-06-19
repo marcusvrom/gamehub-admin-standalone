@@ -1,0 +1,92 @@
+<h1 class="mb-4">Dashboard</h1>
+
+<div class="row mb-4">
+  <div class="col-xl-3 col-md-6 mb-4">
+    <div class="summary-card card border-left-primary h-100 py-2">
+      <div class="card-body"><div class="row no-gutters align-items-center"><div class="col mr-2"><div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Faturamento (Hoje)</div><div class="h5 mb-0 font-weight-bold text-gray-800">{{ summaryData.revenueToday | currency:'BRL' }}</div></div><div class="col-auto"><i class="bi bi-calendar-day fs-2 text-gray-300"></i></div></div></div>
+    </div>
+  </div>
+  <div class="col-xl-3 col-md-6 mb-4">
+    <div class="summary-card card border-left-success h-100 py-2">
+      <div class="card-body"><div class="row no-gutters align-items-center"><div class="col mr-2"><div class="text-xs font-weight-bold text-success text-uppercase mb-1">Faturamento (7 Dias)</div><div class="h5 mb-0 font-weight-bold text-gray-800">{{ summaryData.revenue7Days | currency:'BRL' }}</div></div><div class="col-auto"><i class="bi bi-calendar-week fs-2 text-gray-300"></i></div></div></div>
+    </div>
+  </div>
+  <div class="col-xl-3 col-md-6 mb-4">
+    <div class="summary-card card border-left-info h-100 py-2">
+      <div class="card-body"><div class="row no-gutters align-items-center"><div class="col mr-2"><div class="text-xs font-weight-bold text-info text-uppercase mb-1">Sessões (Hoje)</div><div class="h5 mb-0 font-weight-bold text-gray-800">{{ summaryData.sessionsToday }}</div></div><div class="col-auto"><i class="bi bi-joystick fs-2 text-gray-300"></i></div></div></div>
+    </div>
+  </div>
+  <div class="col-xl-3 col-md-6 mb-4">
+    <div class="summary-card card border-left-warning h-100 py-2">
+      <div class="card-body"><div class="row no-gutters align-items-center"><div class="col mr-2"><div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Novos Clientes (Hoje)</div><div class="h5 mb-0 font-weight-bold text-gray-800">{{ summaryData.newClientsToday }}</div></div><div class="col-auto"><i class="bi bi-person-plus-fill fs-2 text-gray-300"></i></div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- <div class="row">
+  <div class="col-12">
+    <div class="card shadow mb-4">
+      <div class="card-header py-3 d-flex align-items-center"><i class="bi bi-bar-chart-fill me-2"></i>Horários de Pico (Últimos 30 dias)</div>
+      <div class="card-body">
+        <div class="chart-container">
+          <ngx-charts-bar-vertical
+            [scheme]="colorScheme"
+            [results]="peakHoursData"
+            [xAxis]="true"
+            [yAxis]="true"
+            [legend]="false"
+            [showXAxisLabel]="true"
+            [showYAxisLabel]="true"
+            xAxisLabel="Hora do Dia"
+            yAxisLabel="Nº de Sessões">
+          </ngx-charts-bar-vertical>
+        </div>
+        </div>
+    </div>
+  </div>
+</div> -->
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+        <h6 class="m-0 font-weight-bold d-flex align-items-center"><i class="bi bi-joystick me-2"></i>Jogadores Ativos</h6>
+        <div class="input-group" style="width: 300px;">
+            <span class="input-group-text bg-dark border-secondary"><i class="bi bi-search"></i></span>
+            <input type="text" class="form-control" placeholder="Pesquisar..." [(ngModel)]="searchTerm" (ngModelChange)="onSearch()">
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table *ngIf="filteredActiveSessions.length > 0" class="table table-hover align-middle">
+                <thead>
+                  <tr>
+                    <th (click)="onSort('client_name')" class="sortable">Cliente <i class="bi" [ngClass]="{'bi-arrow-down': sortColumn === 'client_name' && sortDirection === 'desc', 'bi-arrow-up': sortColumn === 'client_name' && sortDirection === 'asc'}"></i></th>
+                    <th (click)="onSort('station_name')" class="sortable">Estação <i class="bi" [ngClass]="{'bi-arrow-down': sortColumn === 'station_name' && sortDirection === 'desc', 'bi-arrow-up': sortColumn === 'station_name' && sortDirection === 'asc'}"></i></th>
+                    <th>Sessão Aberta</th>
+                    <th>Horas Restantes</th>
+                    <th (click)="onSort('entry_time')" class="sortable">Entrada <i class="bi" [ngClass]="{'bi-arrow-down': sortColumn === 'entry_time' && sortDirection === 'desc', 'bi-arrow-up': sortColumn === 'entry_time' && sortDirection === 'asc'}"></i></th>
+                    <th>Saída Prevista</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let session of filteredActiveSessions">
+                    <td>{{ session.client_name }}</td>
+                    <td><strong>{{ session.station_name }}</strong></td>
+                    <td><strong>{{ session.dynamic_elapsed_ms | msToTime }}</strong></td>
+                    <td><span [class.text-danger]="session.dynamic_remaining_ms < 1800000">{{ session.dynamic_remaining_ms | msToTime }}</span></td>
+                    <td>{{ session.entry_time | date:'HH:mm' }}</td>
+                    <td>{{ session.predicted_exit_time | date:'HH:mm | dd/MM' }}</td>
+                    <td>
+                      <button class="btn btn-danger btn-sm d-flex align-items-center" (click)="onCheckOut(session.client_id, session.client_name)">
+                        <i class="bi bi-stop-circle-fill me-1"></i> Check-out
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+            </table>
+            <div *ngIf="filteredActiveSessions.length === 0" class="text-center text-muted p-4">
+                Nenhum jogador ativo encontrado.
+            </div>
+        </div>
+    </div>
+</div>
