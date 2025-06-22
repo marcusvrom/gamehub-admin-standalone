@@ -1,0 +1,73 @@
+<h1 class="mb-4">Financeiro</h1>
+
+<app-cash-flow></app-cash-flow>
+
+<div class="card mt-4">
+  <div class="card-header">
+    Relatório de Transações
+  </div>
+  <div class="card-body">
+    <form [formGroup]="reportForm" (ngSubmit)="generateReport()">
+      <div class="row g-3 align-items-center mb-4">
+        <div class="col-auto"><label class="form-label">De:</label></div>
+        <div class="col-auto"><input type="date" formControlName="startDate" class="form-control"></div>
+        <div class="col-auto"><label class="form-label">Até:</label></div>
+        <div class="col-auto"><input type="date" formControlName="endDate" class="form-control"></div>
+        <div class="col-auto"><button type="submit" class="btn btn-primary"><i class="bi bi-funnel-fill me-2"></i>Gerar Relatório</button></div>
+        <div class="col-auto ms-auto">
+            <div class="btn-group">
+                <button type="button" class="btn btn-outline-secondary" (click)="setPeriod('today')">Hoje</button>
+                <button type="button" class="btn btn-outline-secondary" (click)="setPeriod('week')">Esta Semana</button>
+                <button type="button" class="btn btn-outline-secondary" (click)="setPeriod('month')">Este Mês</button>
+            </div>
+        </div>
+      </div>
+    </form>
+
+    <div *ngIf="isLoading">
+      <app-shimmer-loader height="100px" className="mb-4"></app-shimmer-loader>
+      <app-shimmer-loader height="300px"></app-shimmer-loader>
+    </div>
+
+    <div *ngIf="!isLoading && reportData">
+      <div class="row mb-4">
+        <div class="col"><div class="summary-card text-center p-3"><h5>Faturamento Total</h5><h2>{{ reportData.summary.totalRevenue | currency:'BRL' }}</h2></div></div>
+        <div class="col"><div class="summary-card text-center p-3"><h5>Total de Transações</h5><h2>{{ reportData.summary.totalTransactions }}</h2></div></div>
+        <div class="col"><div class="summary-card text-center p-3"><h5>Receita (Pix)</h5><h2>{{ reportData.summary.revenueByPix | currency:'BRL' }}</h2></div></div>
+        <div class="col"><div class="summary-card text-center p-3"><h5>Receita (Cartão)</h5><h2>{{ reportData.summary.revenueByCard | currency:'BRL' }}</h2></div></div>
+        <div class="col"><div class="summary-card text-center p-3"><h5>Receita (Dinheiro)</h5><h2>{{ reportData.summary.revenueByCash | currency:'BRL' }}</h2></div></div>
+      </div>
+
+      <div class="chart-container mb-4" style="height: 300px;">
+        <ngx-charts-line-chart
+            [results]="reportData.dailyRevenue"
+            [scheme]="colorScheme"
+            [xAxis]="true"
+            [yAxis]="true"
+            yAxisLabel="Faturamento (R$)"
+            xAxisLabel="Dia">
+        </ngx-charts-line-chart>
+      </div>
+
+      <h6>Todas as Transações no Período</h6>
+      <div class="table-responsive">
+        <table class="table table-sm table-hover">
+          <thead>
+            <tr><th>Data</th><th>Cliente</th><th>Tipo</th><th>Valor</th><th>Método</th><th>Notas</th></tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let tx of reportData.transactions">
+              <td>{{ tx.transaction_date | date:'dd/MM/yy HH:mm' }}</td>
+              <td>{{ tx.client_name || 'N/A' }}</td>
+              <td><span class="badge bg-primary">{{ tx.transaction_type }}</span></td>
+              <td>{{ tx.amount_paid | currency:'BRL' }}</td>
+              <td>{{ tx.payment_method }}</td>
+              <td>{{ tx.notes }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+

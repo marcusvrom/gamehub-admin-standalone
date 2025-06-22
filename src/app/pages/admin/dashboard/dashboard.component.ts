@@ -4,12 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../../core/services/api.service';
 import { HoursMinutesPipe } from '../../../core/pipes/hours-minutes-pipe';
 import { MsToTimePipe } from '../../../core/pipes/ms-to-time-pipe';
+import { NgxChartsModule } from '@swimlane/ngx-charts';
 
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, HoursMinutesPipe, MsToTimePipe, DatePipe],
+  imports: [CommonModule, FormsModule, HoursMinutesPipe, MsToTimePipe, DatePipe, NgxChartsModule],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']

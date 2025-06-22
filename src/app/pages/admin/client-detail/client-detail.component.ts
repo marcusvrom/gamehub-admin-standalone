@@ -52,7 +52,8 @@ export class ClientDetailComponent implements OnInit {
     private fb: FormBuilder
   ) {
     this.addHoursForm = this.fb.group({
-      hours_to_add: [1, [Validators.required, Validators.min(0.1)]]
+      hours_to_add: [1, [Validators.required, Validators.min(0.1)]],
+      payment_method: ['PIX', Validators.required]
     });
     this.upgradeForm = this.fb.group({
       next_billing_date: ['', Validators.required]
@@ -61,7 +62,8 @@ export class ClientDetailComponent implements OnInit {
       new_next_billing_date: ['', Validators.required]
     });
     this.buyPackageForm = this.fb.group({
-      package_id: ['', Validators.required]
+      package_id: ['', Validators.required],
+      payment_method: ['PIX', Validators.required]
     });
   }
 
@@ -163,7 +165,8 @@ export class ClientDetailComponent implements OnInit {
     const transactionData = {
       hours_to_add: this.addHoursForm.value.hours_to_add,
       amount_paid: this.calculatedCost,
-      rate_used: rate
+      rate_used: rate,
+      payment_method: this.addHoursForm.value.payment_method
     };
     this.apiService.addHoursTransaction(this.clientId, transactionData).subscribe(() => {
       alert('Horas adicionadas com sucesso!');
@@ -208,9 +211,9 @@ export class ClientDetailComponent implements OnInit {
 
   onBuyPackage(): void {
     if (this.buyPackageForm.invalid) return;
-    const packageId = this.buyPackageForm.value.package_id;
+    const { package_id, payment_method } = this.buyPackageForm.value;
     if (confirm('Você confirma a compra deste pacote para o cliente?')) {
-      this.apiService.buyPackageForClient(this.clientId, { package_id: packageId }).subscribe({
+      this.apiService.buyPackageForClient(this.clientId, { package_id: package_id, payment_method: payment_method }).subscribe({
         next: () => {
           alert('Pacote comprado com sucesso!');
           this.showBuyPackageModal = false;

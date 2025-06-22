@@ -109,7 +109,7 @@ export class ApiService {
   getActivePackages(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/packages`);
   }
-  buyPackageForClient(clientId: number, data: { package_id: number }): Observable<any> {
+  buyPackageForClient(clientId: number, data: { package_id: number; payment_method: string }): Observable<any> {
     return this.http.post(`${this.apiUrl}/clients/${clientId}/buy-package`, data);
   }
 
@@ -133,5 +133,23 @@ export class ApiService {
 
   getPeakHours(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/reports/peak-hours`);
+  }
+
+  getFinancialReport(startDate: string, endDate: string): Observable<any> {
+    const params = { startDate, endDate };
+    return this.http.get(`${this.apiUrl}/reports/financial-details`, { params });
+  }
+
+  // --- Cash Flow ---
+  getTodayCashFlow(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/cash-flow/today`);
+  }
+
+  openCashFlow(data: { opening_balance: number }): Observable<any> {
+    return this.http.post(`${this.apiUrl}/cash-flow/open`, data);
+  }
+
+  closeCashFlow(data: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/cash-flow/close`, data);
   }
 }

@@ -4,12 +4,12 @@
   <h1 class="mb-0">Lista de Clientes</h1>
   <div class="d-flex align-items-center gap-2">
     <div class="input-group">
-      <span class="input-group-text bg-dark border-secondary"
+      <span class="input-group-text bg-dark border-primary"
         ><i class="bi bi-search"></i
       ></span>
       <input
         type="text"
-        class="form-control"
+        class="form-control border-primary"
         placeholder="Pesquisar por nome, CPF..."
         [(ngModel)]="searchTerm"
         (ngModelChange)="onSearch()"

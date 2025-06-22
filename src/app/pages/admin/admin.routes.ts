@@ -8,6 +8,7 @@ import { SettingsComponent } from './settings/settings.component';
 import { SchedulingComponent } from './scheduling/scheduling.component';
 import { PackageManagementComponent } from './package-management/package-management.component';
 import { StationManagementComponent } from './station-management/station-management.component';
+import { FinancialComponent } from './financial/financial.component';
 
 export const ADMIN_ROUTES: Routes = [
     {
@@ -23,6 +24,7 @@ export const ADMIN_ROUTES: Routes = [
             { path: 'scheduling', component: SchedulingComponent },
             { path: 'packages', component: PackageManagementComponent },
             { path: 'stations', component: StationManagementComponent },
+            { path: 'financial', component: FinancialComponent },
             { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
         ]
     }

@@ -1,0 +1,59 @@
+<div class="card">
+  <div class="card-header d-flex align-items-center justify-content-between">
+    <h6 class="m-0 font-weight-bold d-flex align-items-center"><i class="bi bi-wallet2 me-2"></i>Controle de Caixa do Dia</h6>
+    <button class="btn btn-sm btn-outline-secondary" (click)="loadCashFlowStatus()" title="Atualizar Status"><i class="bi bi-arrow-clockwise"></i></button>
+  </div>
+  <div class="card-body">
+    <div *ngIf="isLoading">
+      <app-shimmer-loader height="150px"></app-shimmer-loader>
+    </div>
+
+    <div *ngIf="!isLoading" [ngSwitch]="cashFlow.status">
+
+      <div *ngSwitchCase="'NOT_OPENED'">
+        <h5 class="text-warning">O caixa de hoje ainda não foi aberto.</h5>
+        <p class="text-muted mb-3 opacity-50" style="color: #eee;">Insira o valor inicial em dinheiro (saldo de troco) para abrir o caixa e começar as operações do dia.</p>
+        <form [formGroup]="openForm" (ngSubmit)="onOpenCashFlow()" class="d-flex align-items-center gap-3">
+          <div class="input-group" style="max-width: 200px;">
+            <span class="input-group-text bg-dark">R$</span>
+            <input type="number" formControlName="opening_balance" class="form-control">
+          </div>
+          <button type="submit" class="btn btn-success" [disabled]="openForm.invalid">
+            <i class="bi bi-box-arrow-in-right me-2"></i>Abrir Caixa
+          </button>
+        </form>
+      </div>
+
+      <div *ngSwitchCase="'ABERTO'">
+         <h5 class="text-success">Caixa Aberto</h5>
+         <p><strong>Saldo de Abertura:</strong> {{ cashFlow.opening_balance | currency:'BRL' }}</p>
+         <hr>
+         <h6>Fechamento de Caixa</h6>
+         <form [formGroup]="closeForm" (ngSubmit)="onCloseCashFlow()">
+           <div class="row">
+             <div class="col-md-4 mb-3"><label class="form-label">Total Recebido em Dinheiro</label><input type="number" formControlName="revenue_cash" class="form-control"></div>
+             <div class="col-md-4 mb-3"><label class="form-label">Total de Despesas (em dinheiro)</label><input type="number" formControlName="expenses" class="form-control"></div>
+             <div class="col-md-4 mb-3"><label class="form-label">Valor Final no Caixa (contagem)</label><input type="number" formControlName="closing_balance" class="form-control"></div>
+           </div>
+           <button type="submit" class="btn btn-danger" [disabled]="closeForm.invalid">
+             <i class="bi bi-lock-fill me-2"></i>Fechar Caixa do Dia
+           </button>
+         </form>
+      </div>
+
+      <div *ngSwitchCase="'FECHADO'">
+        <h5 class="text-info">O caixa de hoje já foi fechado.</h5>
+        <div class="row mt-4 fs-5">
+          <div class="col-md-6 col-lg-3 mb-3"><strong>Abertura:</strong><br>{{ cashFlow.opening_balance | currency:'BRL' }}</div>
+          <div class="col-md-6 col-lg-3 mb-3 text-success"><strong>Receita (Dinheiro):</strong><br>+ {{ cashFlow.revenue_cash | currency:'BRL' }}</div>
+          <div class="col-md-6 col-lg-3 mb-3 text-info"><strong>Receita (Eletrônico):</strong><br>+ {{ cashFlow.revenue_calculated_electronic | currency:'BRL' }}</div>
+          <div class="col-md-6 col-lg-3 mb-3 text-danger"><strong>Despesas:</strong><br>- {{ cashFlow.expenses | currency:'BRL' }}</div>
+          <div class="col-12"><hr></div>
+          <div class="col-md-6"><strong>Total Esperado no Caixa:</strong><br><h4 class="text-primary">{{ (cashFlow.opening_balance + cashFlow.revenue_cash - cashFlow.expenses) | currency:'BRL' }}</h4></div>
+          <div class="col-md-6"><strong>Total Contado (Fechamento):</strong><br><h4>{{ cashFlow.closing_balance | currency:'BRL' }}</h4></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
