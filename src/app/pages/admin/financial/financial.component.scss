@@ -1,0 +1,18 @@
+:host ::ng-deep {
+  .ngx-charts {
+    // Estiliza o texto das legendas (não temos neste gráfico, mas é bom ter)
+    .legend-label-text {
+      fill: var(--text-light) !important;
+    }
+
+    // Estiliza o texto dos rótulos dos eixos (ex: "Hora do Dia")
+    .axis-label {
+      fill: var(--text-secondary) !important;
+    }
+
+    // Estiliza os números nos eixos (ex: 14:00, 15:00 ou 0, 5, 10)
+    .tick text {
+      fill: var(--text-secondary) !important;
+    }
+  }
+}

@@ -65,7 +65,8 @@ body {
 }
 
 // Formulários
-.form-control, .form-select {
+.form-control,
+.form-select {
   background-color: var(--light-dark-bg);
   color: var(--text-light);
   border: 1px solid var(--border-color);
@@ -78,116 +79,135 @@ body {
   }
 }
 .form-check-input {
-    background-color: var(--light-dark-bg);
-    border-color: var(--border-color);
-    &:checked {
-        background-color: var(--primary-blue);
-        border-color: var(--primary-blue);
-    }
+  background-color: var(--light-dark-bg);
+  border-color: var(--border-color);
+  &:checked {
+    background-color: var(--primary-blue);
+    border-color: var(--primary-blue);
+  }
 }
 
 // Links
 a {
-    color: var(--primary-blue);
-    &:hover {
-        color: #0055dd;
-    }
+  color: var(--primary-blue);
+  &:hover {
+    color: #0055dd;
+  }
 }
 
 .modal-backdrop {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.7); // Fundo semi-transparente
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1050; // Garante que fique acima de outros elementos
-    cursor: pointer; // Indica que clicar no fundo fecha o modal
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7); // Fundo semi-transparente
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1050; // Garante que fique acima de outros elementos
+  cursor: pointer; // Indica que clicar no fundo fecha o modal
 }
 
 .modal-content {
-    position: relative;
-    background-color: var(--dark-bg);
-    padding: 2rem;
-    border-radius: 8px;
-    border: 1px solid var(--border-color);
-    box-shadow: 0 5px 15px rgba(0,0,0,.5);
+  position: relative;
+  background-color: var(--dark-bg);
+  padding: 2rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
 
-    // Define o tamanho do modal
-    width: 90%; // Ocupa 90% da largura da tela...
-    max-width: 500px; // ...mas no máximo 500px
+  // Define o tamanho do modal
+  width: 90%; // Ocupa 90% da largura da tela...
+  max-width: 500px; // ...mas no máximo 500px
 
-    cursor: default; // O cursor volta ao normal sobre o conteúdo
+  cursor: default; // O cursor volta ao normal sobre o conteúdo
 
-    // Animação de entrada
-    animation: fadeInScaleUp 0.3s ease-out;
+  // Animação de entrada
+  animation: fadeInScaleUp 0.3s ease-out;
 }
 
 .modal-close-btn {
-    position: absolute;
-    top: 1rem;
-    right: 1.5rem;
-    background: none;
-    border: none;
-    padding: 0;
-    font-size: 1.5rem;
-    line-height: 1;
-    color: var(--text-secondary);
-    cursor: pointer;
-    transition: color 0.2s ease-in-out, transform 0.2s ease-in-out;
+  position: absolute;
+  top: 1rem;
+  right: 1.5rem;
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color 0.2s ease-in-out, transform 0.2s ease-in-out;
 
-    &:hover {
-        color: var(--white);
-        transform: scale(1.1);
-    }
+  &:hover {
+    color: var(--white);
+    transform: scale(1.1);
+  }
 }
 
 // Keyframes para a animação
 @keyframes fadeInScaleUp {
-    from {
-        opacity: 0;
-        transform: scale(0.9);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
-      /* --- Estilização da Barra de Rolagem --- */
+/* --- Estilização da Barra de Rolagem --- */
 
-      /* Para Firefox (o método mais moderno e simples) */
-      html {
-        scrollbar-width: thin; /* Pode ser 'auto', 'thin' ou 'none' */
-        scrollbar-color: var(--primary-blue) var(--light-dark-bg); /* Cor do polegar e da trilha */
-      }
+/* Para Firefox (o método mais moderno e simples) */
+html {
+  scrollbar-width: thin; /* Pode ser 'auto', 'thin' ou 'none' */
+  scrollbar-color: var(--primary-blue) var(--light-dark-bg); /* Cor do polegar e da trilha */
+}
 
-      /* Para Chrome, Safari, Edge e outros navegadores baseados em WebKit */
+/* Para Chrome, Safari, Edge e outros navegadores baseados em WebKit */
 
-      /* Define a largura da barra de rolagem inteira */
-      ::-webkit-scrollbar {
-        width: 12px;
-      }
+/* Define a largura da barra de rolagem inteira */
+::-webkit-scrollbar {
+  width: 12px;
+}
 
-      /* A trilha (o fundo da barra de rolagem) */
-      ::-webkit-scrollbar-track {
-        background: var(
-          --light-dark-bg
-        ); /* Fundo um pouco mais claro para contraste */
-        border-radius: 10px;
-      }
+/* A trilha (o fundo da barra de rolagem) */
+::-webkit-scrollbar-track {
+  background: var(
+    --light-dark-bg
+  ); /* Fundo um pouco mais claro para contraste */
+  border-radius: 10px;
+}
 
-      /* O 'polegar' (a parte que você arrasta) */
-      ::-webkit-scrollbar-thumb {
-        background-color: var(--primary-blue); /* A cor de destaque do site */
-        border-radius: 10px;
-        border: 3px solid var(--light-dark-bg); /* Cria uma pequena borda com a cor da trilha */
-      }
+/* O 'polegar' (a parte que você arrasta) */
+::-webkit-scrollbar-thumb {
+  background-color: var(--primary-blue); /* A cor de destaque do site */
+  border-radius: 10px;
+  border: 3px solid var(--light-dark-bg); /* Cria uma pequena borda com a cor da trilha */
+}
 
-      /* Efeito ao passar o mouse sobre o 'polegar' */
-      ::-webkit-scrollbar-thumb:hover {
-        background-color: #007bff; /* Um tom de azul um pouco mais claro para feedback visual */
-      }
+/* Efeito ao passar o mouse sobre o 'polegar' */
+::-webkit-scrollbar-thumb:hover {
+  background-color: #007bff; /* Um tom de azul um pouco mais claro para feedback visual */
+}
+
+:host ::ng-deep {
+  .ngx-charts {
+    // Estiliza o texto das legendas (não temos neste gráfico, mas é bom ter)
+    .legend-label-text {
+      fill: var(--text-light) !important;
+    }
+
+    // Estiliza o texto dos rótulos dos eixos (ex: "Hora do Dia")
+    .axis-label {
+      fill: var(--text-secondary) !important;
+    }
+
+    // Estiliza os números nos eixos (ex: 14:00, 15:00 ou 0, 5, 10)
+    .tick text {
+      fill: var(--text-secondary) !important;
+    }
+  }
+}

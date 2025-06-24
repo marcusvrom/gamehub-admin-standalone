@@ -23,20 +23,22 @@ export class ClientDetailComponent implements OnInit {
   transactionHistory: any[] = [];
   settings: any = {};
   packages: any[] = [];
-  availableStations: any[] = []; // <-- Propriedade para o modal de check-in
+  availableStations: any[] = [];
 
   // Propriedades para controle dos Modais
   showAddHoursModal = false;
   showUpgradeModal = false;
   showRenewModal = false;
   showBuyPackageModal = false;
-  showCheckInModal = false; // <-- Propriedade para o modal de check-in
+  showCheckInModal = false;
+  showAdjustBalanceModal = false;
 
   // Forms para os Modais
   addHoursForm: FormGroup;
   upgradeForm: FormGroup;
   renewForm: FormGroup;
   buyPackageForm: FormGroup;
+  adjustBalanceForm: FormGroup;
 
   // Propriedade para o cálculo de custo
   calculatedCost: number | null = null;
@@ -52,9 +54,11 @@ export class ClientDetailComponent implements OnInit {
     private fb: FormBuilder
   ) {
     this.addHoursForm = this.fb.group({
-      hours_to_add: [1, [Validators.required, Validators.min(0.1)]],
+      hours: [0, [Validators.required, Validators.min(0)]],
+      minutes: [30, [Validators.required, Validators.min(0), Validators.max(59)]],
       payment_method: ['PIX', Validators.required]
     });
+
     this.upgradeForm = this.fb.group({
       next_billing_date: ['', Validators.required]
     });
@@ -64,6 +68,10 @@ export class ClientDetailComponent implements OnInit {
     this.buyPackageForm = this.fb.group({
       package_id: ['', Validators.required],
       payment_method: ['PIX', Validators.required]
+    });
+    this.adjustBalanceForm = this.fb.group({
+      hours: [0, [Validators.required, Validators.min(0)]],
+      minutes: [0, [Validators.required, Validators.min(0), Validators.max(59)]]
     });
   }
 
@@ -153,21 +161,48 @@ export class ClientDetailComponent implements OnInit {
 
   // --- Lógica dos Modais ---
   calculateCost(): void {
-    if (this.addHoursForm.invalid || !this.client) { this.calculatedCost = null; return; }
-    const hours = this.addHoursForm.value.hours_to_add;
-    const rate = this.client.client_type === 'CLUBE' ? this.settings.hourly_rate_club : this.settings.hourly_rate_regular;
-    this.calculatedCost = hours * rate;
+    if (this.addHoursForm.invalid || !this.client) {
+      this.calculatedCost = null;
+      return;
+    }
+
+    // Combina horas e minutos em um único valor decimal de horas
+    const hours = this.addHoursForm.value.hours || 0;
+    const minutes = this.addHoursForm.value.minutes || 0;
+    const totalHours = hours + (minutes / 60);
+
+    if (totalHours <= 0) {
+        this.calculatedCost = null;
+        return;
+    }
+
+    const rate = this.client.client_type === 'CLUBE'
+      ? this.settings.hourly_rate_club
+      : this.settings.hourly_rate_regular;
+
+    this.calculatedCost = totalHours * rate;
   }
 
   confirmAddHours(): void {
-    if (this.calculatedCost === null) return;
+    if (this.addHoursForm.invalid || this.calculatedCost === null) return;
+
+    const hours = this.addHoursForm.value.hours || 0;
+    const minutes = this.addHoursForm.value.minutes || 0;
+    const totalHours = hours + (minutes / 60);
+
+    if (totalHours <= 0) {
+        alert("Por favor, adicione um tempo maior que zero.");
+        return;
+    }
+
     const rate = this.client.client_type === 'CLUBE' ? this.settings.hourly_rate_club : this.settings.hourly_rate_regular;
     const transactionData = {
-      hours_to_add: this.addHoursForm.value.hours_to_add,
+      hours_to_add: totalHours, // Envia o valor decimal combinado para a API
       amount_paid: this.calculatedCost,
       rate_used: rate,
       payment_method: this.addHoursForm.value.payment_method
     };
+
     this.apiService.addHoursTransaction(this.clientId, transactionData).subscribe(() => {
       alert('Horas adicionadas com sucesso!');
       this.closeAddHoursModal();
@@ -178,7 +213,7 @@ export class ClientDetailComponent implements OnInit {
   closeAddHoursModal(): void {
     this.showAddHoursModal = false;
     this.calculatedCost = null;
-    this.addHoursForm.reset({ hours_to_add: 1 });
+    this.addHoursForm.reset({ hours: 0, minutes: 30, payment_method: 'PIX' });
   }
 
   onUpgradeToClub(): void {
@@ -246,6 +281,40 @@ export class ClientDetailComponent implements OnInit {
           this.router.navigate(['/admin/dashboard']);
         },
         error: (err) => alert(`Erro: ${err.error.message}`)
+      });
+    }
+  }
+
+  openAdjustBalanceModal(): void {
+    if (!this.client) return;
+
+    const currentBalance = this.client.hours_balance || 0;
+
+    // Converte o saldo decimal em horas e minutos
+    const hours = Math.floor(currentBalance);
+    const minutes = Math.round((currentBalance % 1) * 60);
+
+    // Define os valores no formulário
+    this.adjustBalanceForm.setValue({ hours, minutes });
+
+    this.showAdjustBalanceModal = true;
+  }
+
+  // Envia o novo saldo para a API
+  onConfirmAdjustBalance(): void {
+    if (this.adjustBalanceForm.invalid) return;
+
+    const { hours, minutes } = this.adjustBalanceForm.value;
+    const newBalance = (hours || 0) + ((minutes || 0) / 60);
+
+    if (confirm(`Deseja definir o saldo de ${this.client.name} para ${hours}h e ${minutes}m?`)) {
+      this.apiService.setClientBalance(this.clientId, newBalance).subscribe({
+        next: () => {
+          alert('Saldo ajustado com sucesso!');
+          this.showAdjustBalanceModal = false;
+          this.loadData(); // Recarrega os dados para mostrar o novo saldo
+        },
+        error: (err) => alert(`Erro ao ajustar saldo: ${err.error.message}`)
       });
     }
   }

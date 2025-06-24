@@ -53,6 +53,10 @@ export class ApiService {
     return this.http.get<any[]>(`${this.apiUrl}/sessions/client/${clientId}`);
   }
 
+  setClientBalance(clientId: number, newBalance: number): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/clients/${clientId}/set-balance`, { new_balance: newBalance });
+  }
+
   // --- Settings ---
   getSettings(): Observable<any> {
     return this.http.get(`${this.apiUrl}/settings`);
@@ -135,9 +139,14 @@ export class ApiService {
     return this.http.get<any[]>(`${this.apiUrl}/reports/peak-hours`);
   }
 
-  getFinancialReport(startDate: string, endDate: string): Observable<any> {
-    const params = { startDate, endDate };
+  getFinancialReport(startDate: string, endDate: string, page: number, pageSize: number): Observable<any> {
+    const params = { startDate, endDate, page: String(page), pageSize: String(pageSize) };
     return this.http.get(`${this.apiUrl}/reports/financial-details`, { params });
+  }
+
+  getStationUsageReport(startDate: string, endDate: string): Observable<any[]> {
+    const params = { startDate, endDate };
+    return this.http.get<any[]>(`${this.apiUrl}/reports/station-usage`, { params });
   }
 
   // --- Cash Flow ---
