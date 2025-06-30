@@ -65,7 +65,7 @@ export class SchedulingComponent implements OnInit {
   }
 
   generateTimeSlots(): void {
-    for (let i = 14; i <= 22; i++) { // Horário de funcionamento: 14h às 22h
+    for (let i = 9; i <= 22; i++) { // Horário de funcionamento: 9h às 22h
       this.timeSlots.push(`${i.toString().padStart(2, '0')}:00`);
     }
   }
@@ -81,8 +81,8 @@ export class SchedulingComponent implements OnInit {
     const startHour = start.getHours() + (start.getMinutes() / 60);
     const endHour = end.getHours() + (end.getMinutes() / 60);
 
-    const left = ((startHour - 14) / (22 - 14)) * 100;
-    const width = ((endHour - startHour) / (22 - 14)) * 100;
+    const left = ((startHour - 9) / (22 - 9)) * 100;
+    const width = ((endHour - startHour) / (22 - 9)) * 100;
 
 
     return {

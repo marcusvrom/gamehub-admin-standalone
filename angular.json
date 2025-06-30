@@ -28,7 +28,8 @@
                 "glob": "**/*",
                 "input": "public"
               },
-              "src/app/pages/admin/layout/assets"
+              "src/app/pages/admin/layout/assets",
+              "src/app/core/services/assets"
             ],
             "styles": [
               "node_modules/bootstrap/dist/css/bootstrap.min.css",

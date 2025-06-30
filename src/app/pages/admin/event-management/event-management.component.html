@@ -1,0 +1,172 @@
+<div
+  class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2"
+>
+  <h1 class="mb-0">Gerenciamento de Eventos</h1>
+  <button
+    class="btn btn-primary d-flex align-items-center"
+    (click)="openModal()"
+  >
+    <i class="bi bi-plus-lg me-2"></i>Novo Evento
+  </button>
+</div>
+
+<div class="card">
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead>
+          <tr>
+            <th>Nome do Evento</th>
+            <th>Data de Início</th>
+            <th>Data de Fim</th>
+            <th>Preço (R$)</th>
+            <th>Vagas</th>
+            <th>Status</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container *ngIf="isLoading">
+            <tr *ngFor="let i of [1, 2, 3]">
+              <td colspan="7">
+                <app-shimmer-loader height="40px"></app-shimmer-loader>
+              </td>
+            </tr>
+          </ng-container>
+          <ng-container *ngIf="!isLoading">
+            <tr *ngFor="let event of events">
+              <td>
+                <a
+                  [routerLink]="['/admin/events', event.id]"
+                  class="text-white text-decoration-none"
+                >
+                  <strong>{{ event.name }}</strong>
+                </a>
+              </td>
+              <td>{{ event.start_time | date : "dd/MM/yyyy HH:mm" }}</td>
+              <td>{{ event.end_time | date : "dd/MM/yyyy HH:mm" }}</td>
+              <td>{{ event.ticket_price | currency : "BRL" }}</td>
+              <td>{{ event.capacity || "Ilimitadas" }}</td>
+              <td>
+                <span
+                  class="badge"
+                  [ngClass]="{
+                    'bg-success': event.status === 'AGENDADO',
+                    'bg-info': event.status === 'EM_ANDAMENTO',
+                    'bg-secondary': event.status === 'CONCLUIDO',
+                    'bg-danger': event.status === 'CANCELADO'
+                  }"
+                  >{{ event.status }}</span
+                >
+              </td>
+              <td>
+                <a
+                  [routerLink]="['/admin/events', event.id]"
+                  class="btn btn-sm btn-primary me-2"
+                  title="Gerenciar Evento"
+                >
+                  <i class="bi bi-gear-fill"></i> Gerenciar
+                </a>
+                <button
+                  class="btn btn-sm btn-danger"
+                  (click)="onDeleteEvent(event)"
+                  title="Excluir"
+                >
+                  <i class="bi bi-trash3-fill"></i>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="events.length === 0">
+              <td colspan="7" class="text-center p-4">
+                Nenhum evento encontrado.
+              </td>
+            </tr>
+          </ng-container>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="showModal" class="modal-backdrop" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <button class="modal-close-btn" (click)="closeModal()" title="Fechar">
+      <i class="bi bi-x-lg"></i>
+    </button>
+    <h4 class="mb-4">{{ isEditMode ? "Editar Evento" : "Novo Evento" }}</h4>
+    <form [formGroup]="eventForm" (ngSubmit)="onSaveEvent()">
+      <div class="mb-3">
+        <label class="form-label">Nome do Evento</label
+        ><input type="text" formControlName="name" class="form-control" />
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Descrição</label
+        ><textarea
+          formControlName="description"
+          class="form-control"
+          rows="2"
+        ></textarea>
+      </div>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Início do Evento</label
+          ><input
+            type="datetime-local"
+            formControlName="start_time"
+            class="form-control"
+          />
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Fim do Evento</label
+          ><input
+            type="datetime-local"
+            formControlName="end_time"
+            class="form-control"
+          />
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-4 mb-3">
+          <label class="form-label">Preço do Ingresso (R$)</label
+          ><input
+            type="number"
+            formControlName="ticket_price"
+            class="form-control"
+          />
+        </div>
+        <div class="col-md-4 mb-3">
+          <label class="form-label"
+            >Vagas (deixe em branco para ilimitado)</label
+          ><input
+            type="number"
+            formControlName="capacity"
+            class="form-control"
+          />
+        </div>
+        <div class="col-md-4 mb-3">
+          <label class="form-label">Status</label
+          ><select formControlName="status" class="form-select">
+            <option *ngFor="let s of eventStatuses" [value]="s">{{ s }}</option>
+          </select>
+        </div>
+      </div>
+    </form>
+    <div class="d-flex justify-content-end mt-4">
+      <button
+        type="button"
+        class="btn btn-secondary me-2"
+        (click)="closeModal()"
+      >
+        Cancelar
+      </button>
+      <button
+        type="submit"
+        class="btn btn-primary"
+        (click)="onSaveEvent()"
+        [disabled]="eventForm.invalid"
+      >
+        Salvar Evento
+      </button>
+    </div>
+  </div>
+</div>

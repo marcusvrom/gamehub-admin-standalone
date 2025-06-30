@@ -1,22 +1,52 @@
-<div class="layout-container" [ngClass]="{ 'sidebar-collapsed': isSidebarCollapsed }">
-
+<div
+  class="layout-container"
+  [ngClass]="{ 'sidebar-collapsed': isSidebarCollapsed }"
+>
   <div class="sidebar d-flex flex-column flex-shrink-0 p-3 text-white">
-    <a routerLink="/admin" class="logo-container d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
-      <img src="https://vemprogamehub.com/painel/app/pages/admin/layout/assets/logo-game-hub.png" alt="Game Hub Logo" height="40" class="logo-img">
+    <a
+      routerLink="/admin"
+      class="logo-container d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none"
+    >
+      <img
+        src="https://vemprogamehub.com/painel/app/pages/admin/layout/assets/logo-game-hub.png"
+        alt="Game Hub Logo"
+        height="40"
+        class="logo-img"
+      />
       <span class="brand-name fs-5 font-pixel">Admin</span>
     </a>
-    <hr>
+    <hr />
     <ul class="nav nav-pills flex-column mb-auto">
       <li class="nav-item">
-        <a routerLink="/admin/dashboard" routerLinkActive="active" class="nav-link">
+        <a
+          routerLink="/admin/dashboard"
+          routerLinkActive="active"
+          class="nav-link"
+        >
           <i class="bi bi-speedometer2"></i>
-          <span>Dashboard</span>
+          <span>Painel de Controle</span>
         </a>
       </li>
       <li>
-        <a routerLink="/admin/clients" routerLinkActive="active" class="nav-link">
+        <a
+          routerLink="/admin/clients"
+          routerLinkActive="active"
+          class="nav-link"
+        >
           <i class="bi bi-people-fill"></i>
           <span>Clientes</span>
+        </a>
+      </li>
+      <li>
+        <a routerLink="/admin/pos" routerLinkActive="active" class="nav-link">
+          <i class="bi bi-cart-check-fill"></i>
+          <span>Ponto de Venda (PDV)</span>
+        </a>
+      </li>
+      <li>
+        <a routerLink="/admin/game-library" routerLinkActive="active" class="nav-link">
+          <i class="bi bi-dpad-fill"></i>
+          <span>Biblioteca de Jogos</span>
         </a>
       </li>
       <li>
@@ -24,40 +54,83 @@
           <i class="bi bi-calendar-week-fill"></i>
           <span>Agendamentos</span>
         </a> -->
-        <a routerLink="/admin/scheduling" routerLinkActive="active" class="nav-link">
+        <a
+          routerLink="/admin/scheduling"
+          routerLinkActive="active"
+          class="nav-link"
+        >
           <i class="bi bi-calendar-week-fill"></i>
           <span>Agendamentos</span>
         </a>
       </li>
       <li>
-        <a routerLink="/admin/stations" routerLinkActive="active" class="nav-link">
+        <a routerLink="/admin/events" routerLinkActive="active" class="nav-link">
+          <i class="bi bi-calendar-event-fill"></i>
+          <span>Eventos</span>
+        </a>
+      </li>
+      <li>
+        <a
+          routerLink="/admin/stations"
+          routerLinkActive="active"
+          class="nav-link"
+        >
           <i class="bi bi-controller"></i>
           <span>Estações</span>
         </a>
       </li>
       <li>
-        <a routerLink="/admin/packages" routerLinkActive="active" class="nav-link">
+        <a
+          routerLink="/admin/packages"
+          routerLinkActive="active"
+          class="nav-link"
+        >
           <i class="bi bi-box-seam-fill"></i>
           <span>Pacotes</span>
         </a>
       </li>
       <li>
-        <a routerLink="/admin/financial" routerLinkActive="active" class="nav-link">
+        <a
+          routerLink="/admin/financial"
+          routerLinkActive="active"
+          class="nav-link"
+        >
           <i class="bi bi-cash-stack"></i><span>Financeiro</span>
         </a>
       </li>
       <li>
-        <a routerLink="/admin/settings" routerLinkActive="active" class="nav-link">
+        <a
+          routerLink="/admin/inventory"
+          routerLinkActive="actived"
+          class="nav-link"
+        >
+          <i class="bi bi-boxes"></i>
+          <span>Estoque</span>
+        </a>
+      </li>
+      <li>
+        <a
+          routerLink="/admin/settings"
+          routerLinkActive="active"
+          class="nav-link"
+        >
           <i class="bi bi-gear-fill"></i>
           <span>Configurações</span>
         </a>
       </li>
     </ul>
-    <hr>
+    <hr />
     <div class="sidebar-toggle-wrapper">
-        <button class="btn btn-outline-secondary w-100" (click)="toggleSidebar()">
-            <i class="bi" [ngClass]="isSidebarCollapsed ? 'bi-chevron-double-right' : 'bi-chevron-double-left'"></i>
-        </button>
+      <button class="btn btn-outline-secondary w-100" (click)="toggleSidebar()">
+        <i
+          class="bi"
+          [ngClass]="
+            isSidebarCollapsed
+              ? 'bi-chevron-double-right'
+              : 'bi-chevron-double-left'
+          "
+        ></i>
+      </button>
     </div>
   </div>
 
@@ -65,3 +138,5 @@
     <router-outlet></router-outlet>
   </main>
 </div>
+
+<app-chat-widget></app-chat-widget>

@@ -1,4 +1,4 @@
-<h1 class="mb-4">Dashboard</h1>
+<h1 class="mb-4">Painel de Controle</h1>
 
 <div class="row mb-2">
   <div class="col-xl-3 col-md-6 mb-4">
@@ -26,22 +26,28 @@
 <div class="row">
   <div class="col-12">
     <div class="card shadow mb-4">
-      <div class="card-header py-3 d-flex align-items-center"><i class="bi bi-bar-chart-fill me-2"></i>Horários de Pico (Últimos 30 dias)</div>
+      <div class="card-header py-3 d-flex align-items-center">
+        <i class="bi bi-bar-chart-fill me-2"></i>Horários de Pico por Dia da Semana (Últimos 30 dias)
+      </div>
       <div class="card-body">
-        <div class="chart-container">
-          <ngx-charts-bar-vertical
-            [scheme]="colorScheme"
-            [results]="peakHoursData"
-            [xAxis]="true"
-            [yAxis]="true"
-            [legend]="false"
-            [showXAxisLabel]="true"
-            [showYAxisLabel]="true"
-            xAxisLabel="Hora do Dia"
-            yAxisLabel="Nº de Sessões">
-          </ngx-charts-bar-vertical>
+        <div class="chart-container" style="height: 350px;">
+          <ngx-charts-heat-map
+              *ngIf="!isReportLoading && heatmapData.length > 0"
+              [results]="heatmapData"
+              [scheme]="heatmapColorScheme"
+              [legend]="false"
+              [xAxis]="true"
+              [yAxis]="true"
+              [showXAxisLabel]="true"
+              [showYAxisLabel]="true"
+              xAxisLabel="Dia da Semana"
+              yAxisLabel="Hora do Dia">
+          </ngx-charts-heat-map>
+          <div *ngIf="!isReportLoading && heatmapData.length === 0" class="text-center text-muted p-5 d-flex align-items-center justify-content-center h-100">
+            Nenhum dado de sessões para gerar o mapa de calor.
+          </div>
         </div>
-        </div>
+      </div>
     </div>
   </div>
 </div>

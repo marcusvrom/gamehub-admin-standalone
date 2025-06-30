@@ -7,8 +7,8 @@ import { CashFlowComponent } from '../../../shared/components/cash-flow/cash-flo
 import { ShimmerLoaderComponent } from '../../../shared/components/shimmer-loader/shimmer-loader.component';
 import { NgxChartsModule, LegendPosition } from '@swimlane/ngx-charts';
 import { ExcelExportService } from '../../../core/services/excel-export.service';
-import { HoursMinutesPipe } from '../../../core/pipes/hours-minutes-pipe';
 import { NgxPaginationModule } from 'ngx-pagination';
+import { HoursMinutesPipe } from '../../../core/pipes/hours-minutes-pipe';
 
 @Component({
   selector: 'app-financial',
@@ -25,10 +25,11 @@ export class FinancialComponent implements OnInit {
   dailyRevenueForChart: any[] = [];
   stationUsageForChart: any[] = [];
   stationUsageData: any[] = [];
+  topProductsData: any[] = [];
 
   colorScheme: any = { domain: ['#0055dd', '#DE007D', '#0ADE00', '#DE9500', '#2E5189'] };
 
-  legendPosition = LegendPosition.Below
+  legendPosition: LegendPosition = LegendPosition.Below;
 
   paginationConfig = {
     itemsPerPage: 10,
@@ -51,51 +52,40 @@ export class FinancialComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Agora, geramos o relatório padrão assim que a página carrega
     this.generateReport();
   }
 
   generateReport(page: number = 1): void {
     if (this.reportForm.invalid) return;
-    this.isReportLoading = true;
-    this.reportData = null;
 
+    this.isReportLoading = true;
+    this.paginationConfig.currentPage = page;
+
+    // Limpa os dados apenas ao gerar um relatório completamente novo
     if (page === 1) {
-        this.reportData = null;
-        this.paginationConfig.currentPage = 1;
-    } else {
-        this.paginationConfig.currentPage = page;
+      this.reportData = null;
     }
 
     const { startDate, endDate } = this.reportForm.value;
 
+    // forkJoin executa todas as chamadas em paralelo e espera por todas as respostas
     forkJoin({
       financial: this.apiService.getFinancialReport(startDate, endDate, this.paginationConfig.currentPage, this.paginationConfig.itemsPerPage),
-      stationUsage: this.apiService.getStationUsageReport(startDate, endDate)
-    }).subscribe(({ financial, stationUsage }) => {
+      stationUsage: this.apiService.getStationUsageReport(startDate, endDate),
+      topProducts: this.apiService.getTopProductsReport(startDate, endDate)
+    }).subscribe(({ financial, stationUsage, topProducts }) => {
+
+      // Atribui todos os dados de uma só vez
       this.reportData = financial;
-      this.stationUsageData = stationUsage.map(item => ({
-        ...item,
-        total_hours_played: item.total_minutes_played / 60,
-        average_session_hours: item.average_session_minutes / 60
-      }));
-
-      // Formata os dados para o gráfico de linha
-      if (financial && financial.dailyRevenue) {
-        this.dailyRevenueForChart = [{
-          "name": "Faturamento",
-          "series": financial.dailyRevenue
-        }];
-      }
-
-      // Formata os dados para o gráfico de pizza
-      this.stationUsageForChart = stationUsage.map(item => ({
-        name: item.type,
-        value: Number(item.total_minutes_played)
-      }));
-
-      this.reportData.transactions = financial.transactions.items;
       this.paginationConfig.totalItems = financial.transactions.totalItems;
+
+      this.stationUsageData = stationUsage.map(item => ({...item, total_hours_played: item.total_minutes_played / 60, average_session_hours: item.average_session_minutes / 60 }));
+      this.stationUsageForChart = stationUsage.map(item => ({ name: item.type, value: Number(item.total_minutes_played) }));
+      this.topProductsData = topProducts;
+
+      if (financial && financial.dailyRevenue) {
+        this.dailyRevenueForChart = [{ "name": "Faturamento", "series": financial.dailyRevenue }];
+      }
 
       this.isReportLoading = false;
     });
@@ -121,18 +111,20 @@ export class FinancialComponent implements OnInit {
   }
 
   exportTransactionsToExcel(): void {
-    if (!this.reportData || !this.reportData.transactions || this.reportData.transactions.length === 0) {
+    if (!this.reportData || !this.reportData.transactions.items || this.reportData.transactions.items.length === 0) {
       alert('Não há dados para exportar.');
       return;
     }
-    const formattedData = this.reportData.transactions.map((tx: any) => ({
-      'Data e Hora': new Date(tx.transaction_date).toLocaleString('pt-BR'),
-      'Cliente': tx.client_name || 'N/A',
-      'Tipo de Transação': tx.transaction_type,
-      'Método de Pagamento': tx.payment_method,
-      'Horas Adicionadas': tx.hours_added,
-      'Valor Pago (R$)': tx.amount_paid,
-      'Observações': tx.notes
+
+    const formattedData = this.reportData.transactions.items.map((tx: any) => ({
+      'Id': tx.id,
+      'Tipo': tx.event_type,
+      'Data e Hora': new Date(tx.event_date).toLocaleString('pt-BR'),
+      'Cliente': tx.client_name || 'Não cadastrado',
+      'Descrição': tx.description,
+      'Quantidade': tx.quantity,
+      'Valor Pago (R$)': tx.value,
+      'Método de Pagamento': tx.payment_method
     }));
     this.excelService.exportAsExcelFile(formattedData, 'Relatorio_Financeiro_GameHub');
   }

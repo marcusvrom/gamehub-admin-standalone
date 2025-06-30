@@ -1,0 +1,27 @@
+<div class="chat-widget-container">
+  <div *ngIf="isOpen" class="chat-window">
+    <div class="chat-header">Chat Interno<button (click)="toggleChat()"><i class="bi bi-x"></i></button></div>
+    <div class="chat-messages" #messageContainer>
+      <div *ngFor="let msg of messages" class="message" [ngClass]="{ 'sent': msg.sender_id === currentUserId, 'received': msg.sender_id !== currentUserId }">
+        <div class="message-bubble">
+          <div class="sender-name">{{ msg.sender_username }}</div>
+          <div class="message-content">{{ msg.message_content }}</div>
+          <div class="message-time">{{ msg.sent_at | date:'HH:mm' }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="chat-input">
+      <input type="text" [(ngModel)]="newMessage" (keyup.enter)="sendMessage()" placeholder="Digite sua mensagem...">
+      <button (click)="sendMessage()"><i class="bi bi-send-fill"></i></button>
+    </div>
+  </div>
+
+  <button class="chat-toggle-btn" (click)="toggleChat()">
+    <i class="bi" [ngClass]="isOpen ? 'bi-x' : 'bi-chat-dots-fill'"></i>
+    <ng-container *ngIf="(unreadCount$ | async) as count">
+        <span *ngIf="count > 0 && !isOpen" class="unread-badge">
+          {{ count }}
+        </span>
+    </ng-container>
+  </button>
+</div>

@@ -5,7 +5,7 @@
 <div class="card mt-4">
   <div class="card-header">Relatório de Transações e Uso</div>
   <div class="card-body">
-    <form [formGroup]="reportForm" (ngSubmit)="generateReport()">
+    <form [formGroup]="reportForm" (ngSubmit)="generateReport(1)">
       <div class="row g-3 align-items-center mb-4">
         <div class="col-auto"><label class="form-label">De:</label></div>
         <div class="col-auto">
@@ -31,7 +31,7 @@
             (click)="exportTransactionsToExcel()"
             [disabled]="!reportData || reportData.transactions.length === 0"
           >
-            <i class="bi bi-file-earmark-excel-fill me-2"></i>Exportar para
+            <i class="bi bi-filetype-xlsx me-2"></i>Exportar para
             Excel
           </button>
         </div>
@@ -127,6 +127,30 @@
         </div>
       </div>
 
+      <div class="row">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex align-items-center"><i class="bi bi-trophy-fill me-2"></i>Produtos Mais Vendidos no Período</div>
+                <div class="card-body">
+                    <div class="chart-container" style="height: 300px;">
+                        <ngx-charts-bar-vertical
+                            *ngIf="topProductsData.length > 0"
+                            [results]="topProductsData"
+                            [scheme]="colorScheme"
+                            [xAxis]="true"
+                            [yAxis]="true"
+                            yAxisLabel="Quantidade Vendida"
+                            xAxisLabel="Produto">
+                        </ngx-charts-bar-vertical>
+                        <div *ngIf="topProductsData.length === 0 && !isReportLoading" class="text-center text-muted p-5 d-flex align-items-center justify-content-center h-100">
+                            Nenhuma venda de produto no período selecionado.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+      </div>
+
       <h4 class="mb-3"><strong>Uso das Estações no Período</strong></h4>
 
       <div *ngIf="stationUsageData.length > 0; else noStationData">
@@ -185,30 +209,35 @@
           Todas as Transações no Período (Página
           {{ paginationConfig.currentPage }})
         </h6>
-        <div class="table-responsive">
-          <table class="table table-sm table-hover">
-            <tbody>
-              <tr
-                *ngFor="
-                  let tx of reportData.transactions
-                    | paginate : paginationConfig
-                "
-              >
-                <td>{{ tx.transaction_date | date : "dd/MM/yy HH:mm" }}</td>
-                <td>{{ tx.client_name || "N/A" }}</td>
-                <td>
-                  <span class="badge bg-primary">{{
-                    tx.transaction_type
-                  }}</span>
-                </td>
-                <td>{{ tx.amount_paid | currency : "BRL" }}</td>
-                <td>{{ tx.payment_method }}</td>
-                <td>{{ tx.notes }}</td>
+          <div class="table-responsive">
+              <table class="table table-sm table-hover">
+            <thead>
+              <tr>
+                <th>Tipo</th>
+                <th>Data</th>
+                <th>Cliente</th>
+                <th>Descrição</th>
+                <th>Qtd/Horas</th>
+                <th>Valor</th>
+                <th>Método</th>
               </tr>
-              <tr *ngIf="reportData.transactions.length === 0">
-                <td colspan="6" class="text-center text-muted p-4">
-                  Nenhuma transação encontrada no período.
+            </thead>
+            <tbody>
+              <tr *ngFor="let tx of reportData.transactions.items | paginate: paginationConfig">
+                <td><span [ngClass]="tx.event_type === 'HORAS/PACOTE' ? 'badge bg-primary' : 'badge bg-danger'">{{ tx.event_type }}</span></td>
+                <td>{{ tx.event_date | date:'dd/MM/yy HH:mm' }}</td>
+                <td>{{ tx.client_name ? tx.client_name :  "Venda Avulsa (Não Cadastrado)"}}</td>
+                <td>
+                  {{ tx.description ? tx.description : 'Horas' }}
                 </td>
+                <td>
+                  {{ tx.quantity }}
+                </td>
+                <td>{{ tx.value | currency:'BRL' }}</td>
+                <td><span class="badge bg-secondary">{{ tx.payment_method }}</span></td>
+              </tr>
+              <tr *ngIf="!reportData || !reportData.transactions.items || reportData.transactions.items.length === 0">
+                  <td colspan="6" class="text-center text-muted p-4">Nenhuma transação encontrada no período.</td>
               </tr>
             </tbody>
           </table>

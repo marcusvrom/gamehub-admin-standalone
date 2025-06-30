@@ -1,0 +1,59 @@
+<div *ngIf="event">
+  <h1 class="mb-1">{{ event.name }}</h1>
+  <p class="text-muted">{{ event.description }}</p>
+  <hr>
+  <div class="row mb-4">
+    <div class="col-md-3"><strong>Início:</strong> {{ event.start_time | date:'dd/MM/yyyy HH:mm' }}</div>
+    <div class="col-md-3"><strong>Fim:</strong> {{ event.end_time | date:'dd/MM/yyyy HH:mm' }}</div>
+    <div class="col-md-3"><strong>Ingresso:</strong> {{ event.ticket_price | currency:'BRL' }}</div>
+    <div class="col-md-3"><strong>Inscritos:</strong> {{ participants.length }} / {{ event.capacity || '∞' }}</div>
+  </div>
+
+  <div class="card mb-4">
+    <div class="card-header">Inscrever Participante</div>
+    <div class="card-body">
+      <div class="d-flex gap-2">
+        <select [(ngModel)]="selectedClientIdToAdd" class="form-select">
+          <option [ngValue]="null" disabled>Selecione um cliente...</option>
+          <option *ngFor="let client of allClients" [value]="client.id">{{ client.name }}</option>
+        </select>
+        <button class="btn btn-primary" (click)="addParticipant()" [disabled]="!selectedClientIdToAdd">Inscrever</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">Participantes Inscritos</div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead>
+            <tr><th>Nome do Cliente</th><th>Data da Inscrição</th><th>Status do Pagamento</th><th>Ações</th></tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let p of participants">
+              <td>{{ p.client_name }}</td>
+              <td>{{ p.registration_date | date:'dd/MM/yy HH:mm' }}</td>
+              <td>
+                <span class="badge" [ngClass]="p.payment_status === 'PAGO' ? 'bg-success' : 'bg-warning text-dark'">
+                  {{ p.payment_status }}
+                </span>
+              </td>
+              <td>
+                <button *ngIf="p.payment_status === 'PENDENTE'" class="btn btn-sm btn-success me-2" (click)="markAsPaid(p)" title="Marcar como Pago">
+                  <i class="bi bi-cash-coin"></i>
+                </button>
+                <button class="btn btn-sm btn-danger" (click)="removeParticipant(p)" title="Remover Inscrição">
+                  <i class="bi bi-trash3-fill"></i>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="participants.length === 0">
+              <td colspan="4" class="text-center text-muted p-4">Nenhum participante inscrito neste evento.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

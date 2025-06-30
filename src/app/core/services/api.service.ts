@@ -149,6 +149,15 @@ export class ApiService {
     return this.http.get<any[]>(`${this.apiUrl}/reports/station-usage`, { params });
   }
 
+  getTopProductsReport(startDate: string, endDate: string): Observable<any[]> {
+    const params = { startDate, endDate };
+    return this.http.get<any[]>(`${this.apiUrl}/reports/top-products`, { params });
+  }
+
+  getPeakHoursByDay(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/reports/peak-hours-by-day`);
+  }
+
   // --- Cash Flow ---
   getTodayCashFlow(): Observable<any> {
     return this.http.get(`${this.apiUrl}/cash-flow/today`);
@@ -160,5 +169,81 @@ export class ApiService {
 
   closeCashFlow(data: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/cash-flow/close`, data);
+  }
+
+  // --- Products (Inventory) ---
+  getProducts(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/products`);
+  }
+
+  createProduct(data: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/products`, data);
+  }
+
+  updateProduct(id: number, data: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/products/${id}`, data);
+  }
+
+  deleteProduct(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/products/${id}`);
+  }
+
+  createSale(saleData: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/sales`, saleData);
+  }
+
+  // --- Games (Library) ---
+  getGames(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/games`);
+  }
+
+  createGame(data: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/games`, data);
+  }
+
+  updateGame(id: number, data: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/games/${id}`, data);
+  }
+
+  deleteGame(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/games/${id}`);
+  }
+
+  // --- Events ---
+  getEvents(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/events`);
+  }
+
+  createEvent(data: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/events`, data);
+  }
+
+  updateEvent(id: number, data: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/events/${id}`, data);
+  }
+
+  deleteEvent(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/events/${id}`);
+  }
+
+  getEventById(id: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/events/${id}`);
+  }
+
+  addParticipant(eventId: number, clientId: number): Observable<any> {
+    return this.http.post(`${this.apiUrl}/events/${eventId}/registrations`, { client_id: clientId });
+  }
+
+  removeParticipant(registrationId: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/events/registrations/${registrationId}`);
+  }
+
+  markRegistrationAsPaid(registrationId: number, paymentMethod: string): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/events/registrations/${registrationId}/mark-as-paid`, { payment_method: paymentMethod });
+  }
+
+  // --- Chat ---
+  getChatHistory(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/chat/history`);
   }
 }

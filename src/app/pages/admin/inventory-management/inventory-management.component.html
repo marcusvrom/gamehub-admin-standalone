@@ -1,0 +1,90 @@
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+  <h1 class="mb-0">Gerenciamento de Estoque</h1>
+  <div class="d-flex align-items-center gap-2">
+    <div class="input-group">
+      <span class="input-group-text bg-dark border-secondary"><i class="bi bi-search"></i></span>
+      <input type="text" class="form-control" placeholder="Pesquisar por nome, SKU, categoria..."
+             [(ngModel)]="searchTerm" (ngModelChange)="onSearch()">
+    </div>
+    <button class="btn btn-outline-primary" (click)="loadProducts()" title="Recarregar Lista">
+      <i class="bi bi-arrow-clockwise"></i>
+    </button>
+    <button class="btn btn-primary d-flex align-items-center" (click)="openModal()">
+      <i class="bi bi-plus-lg me-2"></i>Novo Produto
+    </button>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead>
+          <tr>
+            <th (click)="onSort('name')" class="sortable">Produto <i class="bi" [ngClass]="{'bi-arrow-down': sortColumn === 'name' && sortDirection === 'desc', 'bi-arrow-up': sortColumn === 'name' && sortDirection === 'asc'}"></i></th>
+            <th (click)="onSort('category')" class="sortable">Categoria <i class="bi" [ngClass]="{'bi-arrow-down': sortColumn === 'category' && sortDirection === 'desc', 'bi-arrow-up': sortColumn === 'category' && sortDirection === 'asc'}"></i></th>
+            <th (click)="onSort('price')" class="sortable">Preço <i class="bi" [ngClass]="{'bi-arrow-down': sortColumn === 'price' && sortDirection === 'desc', 'bi-arrow-up': sortColumn === 'price' && sortDirection === 'asc'}"></i></th>
+            <th (click)="onSort('stock_quantity')" class="sortable">Estoque <i class="bi" [ngClass]="{'bi-arrow-down': sortColumn === 'stock_quantity' && sortDirection === 'desc', 'bi-arrow-up': sortColumn === 'stock_quantity' && sortDirection === 'asc'}"></i></th>
+            <th (click)="onSort('is_active')" class="sortable">Status <i class="bi" [ngClass]="{'bi-arrow-down': sortColumn === 'is_active' && sortDirection === 'desc', 'bi-arrow-up': sortColumn === 'is_active' && sortDirection === 'asc'}"></i></th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container *ngIf="isLoading">
+            <tr *ngFor="let i of [1,2,3,4,5]">
+              <td><app-shimmer-loader height="24px" width="80%"></app-shimmer-loader></td>
+              <td><app-shimmer-loader height="24px" width="70%"></app-shimmer-loader></td>
+              <td><app-shimmer-loader height="24px" width="50%"></app-shimmer-loader></td>
+              <td><app-shimmer-loader height="24px" width="40%"></app-shimmer-loader></td>
+              <td><app-shimmer-loader height="24px" width="60%"></app-shimmer-loader></td>
+              <td><div class="d-flex gap-2"><app-shimmer-loader height="31px" width="38px"></app-shimmer-loader><app-shimmer-loader height="31px" width="38px"></app-shimmer-loader></div></td>
+            </tr>
+          </ng-container>
+          <ng-container *ngIf="!isLoading">
+            <tr *ngFor="let product of filteredProducts">
+              <td><strong>{{ product.name }}</strong><p class="small mb-0">{{ product.description }}</p></td>
+              <td><span [ngClass]="product.category === 'Cervejas' ? 'badge bg-danger' : 'badge bg-primary'">{{ product.category }}</span></td>
+              <td>{{ product.price | currency:'BRL' }}</td>
+              <td>{{ product.stock_quantity }}</td>
+              <td><span class="badge" [ngClass]="product.is_active ? 'bg-success' : 'bg-secondary'">{{ product.is_active ? 'Ativo' : 'Inativo' }}</span></td>
+              <td>
+                <button class="btn btn-sm btn-secondary me-2" (click)="openModal(product)" title="Editar"><i class="bi bi-pencil-square"></i></button>
+                <button class="btn btn-sm btn-danger" (click)="onDeleteProduct(product)" title="Excluir"><i class="bi bi-trash3-fill"></i></button>
+              </td>
+            </tr>
+            <tr *ngIf="filteredProducts.length === 0">
+              <td colspan="6" class="text-center text-muted p-4">Nenhum produto encontrado.</td>
+            </tr>
+          </ng-container>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="showModal" class="modal-backdrop" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <button class="modal-close-btn" (click)="closeModal()" title="Fechar"><i class="bi bi-x-lg"></i></button>
+    <h4 class="mb-4">{{ isEditMode ? 'Editar Produto' : 'Novo Produto' }}</h4>
+    <form [formGroup]="productForm" (ngSubmit)="onSaveProduct()">
+      <div class="row">
+        <div class="col-md-8 mb-3"><label class="form-label">Nome do Produto</label><input type="text" formControlName="name" class="form-control"></div>
+        <div class="col-md-4 mb-3"><label class="form-label">Categoria</label><input type="text" formControlName="category" class="form-control"></div>
+      </div>
+      <div class="mb-3"><label class="form-label">Descrição</label><textarea formControlName="description" class="form-control" rows="2"></textarea></div>
+      <div class="row">
+        <div class="col-md-4 mb-3"><label class="form-label">Preço (R$)</label><input type="number" formControlName="price" class="form-control"></div>
+        <div class="col-md-4 mb-3"><label class="form-label">Qtd. em Estoque</label><input type="number" formControlName="stock_quantity" class="form-control"></div>
+        <div class="col-md-4 mb-3"><label class="form-label">SKU (Código)</label><input type="text" formControlName="sku" class="form-control"></div>
+      </div>
+      <div class="form-check form-switch mb-3">
+        <input class="form-check-input" type="checkbox" role="switch" id="product-active" formControlName="is_active">
+        <label class="form-check-label" for="product-active">Produto Ativo (disponível para venda)</label>
+      </div>
+    </form>
+    <div class="d-flex justify-content-end mt-4">
+      <button type="button" class="btn btn-secondary me-2" (click)="closeModal()">Cancelar</button>
+      <button type="submit" class="btn btn-primary" (click)="onSaveProduct()" [disabled]="productForm.invalid">Salvar Produto</button>
+    </div>
+  </div>
+</div>
